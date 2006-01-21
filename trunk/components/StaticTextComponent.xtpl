@@ -1,0 +1,5 @@
+<!-- BEGIN: main -->
+<div class="component textcomponent">
+	{CONTENT}
+</div>
+<!-- END: main -->

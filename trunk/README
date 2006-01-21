@@ -1,0 +1,15 @@
+
+
+Themes:
+------
+
+It is the global layout of the page, mainly the definitions of DIV's et where they are
+on the waebpage.
+
+
+
+Configs:
+-------
+
+When storage type is set to a filesystem one like xml then this folder will store
+the different configuration files.

@@ -1,0 +1,13 @@
+<config>
+<page name="index" template="index.xtpl" servertype="ewon" serverip="127.0.0.1" serverport="80" >
+<component type="StaticText" position="absolute" name="comp_1" x="500" y="330" text="sqdqsdqsd" style="underline" />
+<component type="Board" position="container" parent="middle_container">
+	<post msg="sdfs sfsd sd fsd" user="toto" />
+	<post />
+</component>
+</page>
+
+<page name="page2" template="index.xtpl">
+<component type="StaticText" />
+</page>
+</config>
