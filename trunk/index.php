@@ -96,6 +96,12 @@ if( file_exists($filename) )
 						{
 						case 'absolute':
 
+							$comp_id= $comp->getProperty('name');
+							$x= $comp->getProperty('x');
+							$y= $comp->getProperty('y');
+
+							$page->getTemplate()->assign('ADDED_CSS', "#{$comp_id} {position: absolute; left: $x; top: $y; } ");
+							$page->getTemplate()->assign('BODY', $comp->renderComponent());
 							break;
 
 						case 'container':
@@ -113,7 +119,7 @@ if( file_exists($filename) )
 
 $xtpl= $page->getTemplate();
 
-$xtpl->assign('CSS', "themes/{$CONF['themes']['current']}/style.css");
+$xtpl->assign('TEMPLATE_DIR', "themes/{$CONF['themes']['current']}");
 // render the template
 $xtpl->parse('main');
 

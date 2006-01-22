@@ -1,5 +1,5 @@
 <!-- BEGIN: main -->
-<div class="component boardcomponent">
+<div id="{ID}" class="component boardcomponent">
 	{CONTENT}
 </div>
 <!-- END: main -->

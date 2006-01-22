@@ -1,5 +1,5 @@
 <!-- BEGIN: main -->
-<div class="component textcomponent">
+<div id="{ID}" class="component textcomponent">
 	{CONTENT}
 </div>
 <!-- END: main -->

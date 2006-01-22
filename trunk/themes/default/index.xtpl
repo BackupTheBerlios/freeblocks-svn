@@ -5,9 +5,14 @@
 	<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>
 	<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>
 	<script src="override.js" type="text/javascript"></script>
-	<link rel="stylesheet" target="{CSS}"></link>
+	<link rel="stylesheet" href="{TEMPLATE_DIR}/style.css"></link>
+	<style type="text/css">
+{ADDED_CSS}
+	</style>
 </head>
 <body>
+
+{BODY}
 
 <div id="left_container">
 	{LEFT_CONTAINER}

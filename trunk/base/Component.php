@@ -6,19 +6,35 @@ abstract class Component
 {
 	protected $_properties= array();
 
-	public function renderComponent()
+	/**
+	 * template
+	 *
+	 * @var XTemplate
+	 */
+	protected $xtpl= null;
+
+	public function __construct()
 	{
 		$filename= dirname(__FILE__) . '/../components/' . get_class($this) . ".xtpl";
-		$xtpl= new XTemplate( $filename );
+		$this->xtpl= new XTemplate( $filename );
+	}
 
-		$xtpl->parse('main');
+	public function renderComponent()
+	{
+		$this->xtpl->assign('ID', $this->getProperty('name'));
+		$this->xtpl->parse('main');
 
-		return $xtpl->text('main');
+		return $this->xtpl->text('main');
 	}
 
 	public function setProperty($name, $val)
 	{
 		$this->_properties[$name]= $val;
+	}
+
+	public function getProperty($name)
+	{
+		return isset($this->_properties[$name])?$this->_properties[$name]:null;
 	}
 
 	public function getProperties()
