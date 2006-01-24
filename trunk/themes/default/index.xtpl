@@ -1,10 +1,12 @@
 <!-- BEGIN: main -->
 <html>
 <head>
+	<title>{TITLE}</title>
 	<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>
 	<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>
 	<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>
 	<script src="override.js" type="text/javascript"></script>
+	<script src="scripts.js" type="text/javascript"></script>
 	<link rel="stylesheet" href="{TEMPLATE_DIR}/style.css"></link>
 	<style type="text/css">
 {ADDED_CSS}
@@ -12,20 +14,23 @@
 </head>
 <body>
 
-{BODY}
-
-<div id="left_container">
+<div id="left_container" class="container">
 	{LEFT_CONTAINER}
 </div>
 
-<div id="middle_container">
+<div id="middle_container" class="container">
 	{MIDDLE_CONTAINER}
 </div>
 
-<div id='right_container'>
+<div id="right_container" class="container">
 	{RIGHT_CONTAINER}
 </div>
 
+{BODY}
+
+<script type="text/javascript">
+{ADDED_JS}
+</script>
 </body>
 </html>
 <!-- END: main -->

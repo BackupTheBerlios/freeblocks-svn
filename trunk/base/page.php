@@ -2,9 +2,8 @@
 
 require_once(dirname(__FILE__) . "/Component.php");
 
-class Page
+class Page extends BaseComponent
 {
-	protected $_properties= array();
 	protected $_components= array();
 
 	/**
@@ -13,16 +12,6 @@ class Page
 	 * @var XTemplate
 	 */
 	protected $_template= null;
-
-	public function setProperty($name, $val)
-	{
-		$this->_properties[$name]= $val;
-	}
-
-	public function getProperties()
-	{
-		return $this->_properties;
-	}
 
 	public function setTemplate(XTemplate $tpl)
 	{

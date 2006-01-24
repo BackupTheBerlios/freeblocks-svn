@@ -1,6 +1,6 @@
 
 
-
+/*
 Draggable.prototype.updateDrag= function(event, pointer) {
 
 	if(!this.dragging)
@@ -22,7 +22,7 @@ Draggable.prototype.updateDrag= function(event, pointer) {
 	if(navigator.appVersion.indexOf('AppleWebKit')>0) window.scrollBy(0,0);
 	Event.stop(event);
 };
-
+*/
 
 Draggable.prototype.draw= function(point) {
 	var pos = Position.cumulativeOffset(this.element);
@@ -30,10 +30,10 @@ Draggable.prototype.draw= function(point) {
 	pos[0]-= d[0];
 	pos[1]-= d[1];
 
-	var w= parseFloat(Element.getStyle(this.element, 'width'));
-	var h= parseFloat(Element.getStyle(this.element, 'height'));
+	var w= this.element.clientWidth;
+	var h= this.element.clientHeight;
 
-	var off= [w/2, h/2];
+	var off= [w/2, this.offset[1]];
 
 	var p= [0,1].map(function(i){ return (point[i]-pos[i]-off[i]) }.bind(this));
 
@@ -72,3 +72,6 @@ Draggable.prototype.draw= function(point) {
 		style.visibility = ""; // fix gecko rendering
 	}
 }
+
+
+

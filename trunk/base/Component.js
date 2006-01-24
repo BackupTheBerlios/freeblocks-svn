@@ -1,17 +1,14 @@
-/*
-	used for the edit mode
-*/
+
+
 
 Component= Class.create();
 Component.prototype= {
 
+	_div: null,
 
-	create: function(){
-		var params= arguments[0] || {};
+	initialize: function(){
 
 	},
 
+}
 
-
-
-};

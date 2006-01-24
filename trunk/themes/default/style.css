@@ -7,76 +7,163 @@ BODY {
 }
 
 #left_container, #middle_container, #right_container {
-	position: absolute;
-	border: 2px solid black;
+	float: left;
+	border: 1px solid black;
 	padding: 0;
 	margin: 0;
 
 	top: 10px;
 
-	width: 200px;
-	height: 90%;
+	width: 14%;
+
 }
 
 #left_container { 	left: 10px; }
-#right_container {	right: 10px; }
-#middle_container { position: static; width: auto; margin-left: 210px; margin-right: 210px; }
+#right_container {	float: right; right: 10px; }
+#middle_container { width: 60%; margin-left: 5%; margin-right: 5%; }
 
-.block {
-	display: block;
-	width: 100%;
-	height: 50px;
-
+.component {
 	border: 1px solid black;
 	margin: 0;
 	padding: 0;
 
 	background-color: lightgreen;
-	cursor:move;
-}
-
-#middle_container .block {
-	width: 100%;
-}
-
-#middle_container .block H1 {
-	display: none;
-}
-
-.block H1 {
-	font-size: 100%;
-	background-color: grey;
-	margin: 0;
-	padding: 0;
 }
 
 .hover {
 	border: 1px solid red;
 }
 
-#block1 {
-	background-color: lightblue;
+/**************/
+/* Properties */
+
+#properties_panel {
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	padding-bottom: 5px;
+
+	background-color: #EEEEEE;
+	border: 1px dashed black;
+	z-index: 100;
+
+	-moz-border-radius-topleft: 10px;
+	-moz-border-radius-topright: 10px;
 }
 
-#block2 {
-	background-color: purple;
-}
-
-#block3 {
-	background-color: orange;
-}
-
-
-#src {
-	left: 50%;
-	top: 50%;
-
-	margin-left: -150px;
-	margin-top: -100px;
-
+#properties_panel .title {
+	margin: 0;
+	margin-bottom: 4px;
+	padding: 0;
+	width: 100%;
+	font-size: 100%;
+	font-weight: bold;
 	background-color: lightgrey;
+	border-bottom: 1px solid grey;
+	text-align: center;
+
+	-moz-border-radius-topleft: 10px;
+	-moz-border-radius-topright: 10px;
 }
 
-.component {
-	border: 1px solid black;
+#properties_panel .body {
+	padding: 4px;
 }
+
+#properties_panel_pages {
+	display: none;
+}
+
+#properties_panel {
+	min-height: 25px;
+	right: 0;
+	top: 0;
+	width: 350px;
+}
+
+#properties_panel  .category {
+	border: 1px solid black;
+	margin: 4px;
+	margin-top: 20px;
+	margin-left: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 10px;
+	-moz-border-radius-topleft: 12px;
+	-moz-border-radius-topright: 12px;
+	-moz-border-radius-bottomleft: 12px;
+	-moz-border-radius-bottomright: 12px;
+}
+
+#properties_panel .category .title {
+	position: relative;
+	top: -10px;
+	left: 10px;
+	padding: 1px;
+	background-color: #EEEEEE;
+	border: 1px solid black;
+	width: 60%;
+	text-align: center;
+
+	-moz-border-radius-bottomleft: 10px;
+	-moz-border-radius-bottomright: 10px;
+}
+
+#properties_panel .category .item {
+	width: 100%;
+	margin-bottom: 3px;
+	clear: both;
+}
+
+#properties_panel .category .item LABEL {
+	float: left;
+	width: 30%;
+	margin-right: 5px;
+	text-align: right;
+	line-height: 20px;
+}
+
+#properties_panel .category .item INPUT, #properties_panel .category .item SELECT {
+	margin-left: 5px;
+	border: 1px solid black;
+	padding: 1px;
+	padding-left: 3px;
+}
+
+.slider{
+	width: 100%;
+	height: 4px;
+	background-color:#aaa;
+	margin: 10px;
+}
+
+.slider_handle {
+	position: relative;
+	top: -3px;
+	width: 4px;
+	height: 10px;
+	background-color:#f00;
+}
+
+
+/**************************/
+/* component specific CSS */
+
+/* Board */
+
+.boardcomponent .post {
+	border-bottom: 2px solid black;
+}
+.boardcomponent .post .title {
+	float: left;
+}
+.boardcomponent .post .user {
+	float: right;
+}
+.boardcomponent .post .text {
+	clear: both;
+	padding: 10px;
+	border-top: 1px solid black;
+}
+
+
