@@ -7,6 +7,9 @@
  */
 abstract class Storage
 {
+	protected $_components_data= array();
+	private $_connec_data= array();
+
 	static function getDataPath()
 	{
 		return '';
@@ -16,10 +19,12 @@ abstract class Storage
 
 	protected $_components= array();
 
-	public function __construct()
+	public function __construct($connec_arr)
 	{
-
+		$this->_connec_data= $connec_arr;
 	}
+
+	abstract public function loadData();
 
 	abstract public function saveComponent(Component $c);
 
