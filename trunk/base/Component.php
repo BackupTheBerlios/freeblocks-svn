@@ -22,10 +22,10 @@ class Property
 
 abstract class BaseComponent
 {
-	private $_attributes= array();
 	private $_properties= array();
 
 	// type					// params
+	const TYPE_HIDDEN= 0;
 	const TYPE_TEXT= 1;		// lines: 1...x
 	const TYPE_SLIDER= 2;	// min: minimum, max: maximum
 	const TYPE_CHOICE= 3;	// values: list of possible values ( val => disp )
@@ -40,16 +40,6 @@ abstract class BaseComponent
 
 
 	// getters
-	public function getAttribute($name)
-	{
-		return isset($this->_attributes[$name])?$this->_attributes[$name]:null;
-	}
-
-	public function getAttributes()
-	{
-		return $this->_attributes;
-	}
-
 	function getProperties()
 	{
 		return $this->_properties;
@@ -70,16 +60,16 @@ abstract class BaseComponent
 
 
 	// setters
-	public function setAttribute($name, $val)
-	{
-		$this->_attributes[$name]= $val;
-	}
-
 	function setPropertyValue($name, $val)
 	{
 		if( isset($this->_properties[$name]) )
 		{
 			$this->_properties[$name]->value= $val;
+		}
+		else
+		{
+			// if property doesn't exist create one
+			$this->addProperty($name, '', Component::TYPE_HIDDEN, $val);
 		}
 	}
 
@@ -106,7 +96,7 @@ abstract class Component extends BaseComponent
 
 	public function renderComponent()
 	{
-		$this->xtpl->assign('ID', $this->getAttribute('id'));
+		$this->xtpl->assign('ID', $this->getPropertyValue('id'));
 		$this->xtpl->parse('main');
 
 		return $this->xtpl->text('main');
@@ -119,7 +109,7 @@ abstract class Component extends BaseComponent
 
 	public function getCSS()
 	{
-		$ret= '#' . $this->getAttribute('id') . "{";
+		$ret= '#' . $this->getPropertyValue('id') . "{";
 
 		foreach($this->_css_style as $name => $val)
 		{

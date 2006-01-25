@@ -8,7 +8,7 @@ class StaticTextComponent extends Component
 {
 	public function renderComponent()
 	{
-		$this->xtpl->assign('CONTENT', $this->getAttribute('text'));
+		$this->xtpl->assign('CONTENT', $this->getPropertyValue('text'));
 		return parent::renderComponent();
 	}
 }

@@ -7,17 +7,9 @@
  */
 abstract class Storage
 {
+	protected $_page_data= array();
 	protected $_components_data= array();
-	private $_connec_data= array();
-
-	static function getDataPath()
-	{
-		return '';
-	}
-
-
-
-	protected $_components= array();
+	protected $_connec_data= null;
 
 	public function __construct($connec_arr)
 	{
@@ -26,16 +18,15 @@ abstract class Storage
 
 	abstract public function loadData();
 
-	abstract public function saveComponent(Component $c);
+	public function getPageData()
+	{
+		return $this->_page_data;
+	}
 
-	abstract public function loadComponent(Component $c);
-
-
-	/**
-	 * return component list
-	 * @return array
-	 */
-	abstract public function getComponents();
+	public function getComponentsData()
+	{
+		return $this->_components_data;
+	}
 }
 
 ?>

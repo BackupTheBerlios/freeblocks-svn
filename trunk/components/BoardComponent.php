@@ -10,11 +10,11 @@ class BoardComponent extends Component
 	{
 		$content= "";
 
-		foreach($this->_xml_subnodes as $node)
+		foreach($this->getPropertyValue('sub') as $post)
 		{
-			$title= $this->getFirstNonEmpty($node->getAttribute('title'), 'no title');
-			$user= $this->getFirstNonEmpty($node->getAttribute('user'), 'anonymous');
-			$msg= $this->getFirstNonEmpty($node->getAttribute('msg'), 'no message');
+			$title= isset($post['title'])?$post['title']:'no title';
+			$user= isset($post['user'])?$post['user']:'anonymous';
+			$msg= isset($post['msg'])?$post['msg']:'no message';
 
 			$content.= "
 			<div class='post'>
