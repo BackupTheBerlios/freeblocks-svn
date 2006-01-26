@@ -1,0 +1,27 @@
+
+.container {
+	min-height: 10px;
+}
+
+#debug {
+	position: fixed;
+	left: 10px;
+	top: 85%;
+}
+
+
+.container, .component {
+	border: 1px solid black;
+}
+
+
+/* properties */
+
+#apply_properties {
+	float: left;
+}
+
+#delete_component {
+	float: right;
+}
+

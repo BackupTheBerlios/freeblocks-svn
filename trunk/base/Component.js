@@ -8,7 +8,7 @@ Component.prototype= {
 
 	initialize: function(){
 
-	},
+	}
 
-}
+};
 

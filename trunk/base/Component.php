@@ -37,6 +37,31 @@ abstract class BaseComponent
 		$this->_properties[$name]= new Property($name, $dispname, $type, $value, $param);
 	}
 
+	function addPropertyBefore($target, $name, $dispname, $type, $value= "", $param= "")
+	{
+		$pos= 0;
+		$new_prop= new Property($name, $dispname, $type, $value, $param);
+
+		foreach($this->_properties as $prop)
+		{
+			// target is found
+			if( $prop->name == $target )
+			{
+				break;
+			}
+
+			$pos++;
+		}
+
+		// insert property before
+		array_splice($this->_properties, $pos, 0, array($new_prop));
+	}
+
+	function addPropertyAfter($target, $name, $dispname, $type, $value= "", $param= "")
+	{
+
+	}
+
 
 
 	// getters
@@ -92,6 +117,14 @@ abstract class Component extends BaseComponent
 	{
 		$filename= dirname(__FILE__) . '/../components/' . get_class($this) . ".xtpl";
 		$this->xtpl= new XTemplate( $filename );
+
+		$this->addProperty('width', 'Width', Component::TYPE_TEXT, 'auto');
+		$this->addProperty('position', 'Positionning', Component::TYPE_CHOICE, 'Container', array(
+			'values' => array(
+				'container' => 'Container',
+				'absolute' => 'Absolute',
+				'fixed' => 'Fixed')
+		));
 	}
 
 	public function renderComponent()

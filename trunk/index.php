@@ -1,5 +1,7 @@
 <?php
 
+$start_time= microtime(true);
+
 /*
 http params:
 - page (string)
@@ -128,7 +130,7 @@ foreach( $storage->getComponentsData() as $comp_data )
 		if( $edit_mode )
 		{
 			$xtpl->assign('ADDED_JS', "
-				new Draggable('{$comp_id}', {snap: 10});
+				$('{$comp_id}')._drag_obj= new Draggable('{$comp_id}', {snap: 10});
 			");
 		}
 
@@ -158,6 +160,8 @@ foreach( $storage->getComponentsData() as $comp_data )
 		tmp._div.onclick= function(){ component_clicked(this) };
 		$('{$comp_id}').obj= tmp;
 
+		tmp._drag_obj= tmp._div._drag_obj;
+
 		handle= document.createElement('<div>');
 		handle.className= 'handle';
 
@@ -185,12 +189,19 @@ $xtpl->assign('TEMPLATE_DIR', "themes/{$CONF['themes']['current']}");
 $xtpl->assign('TITLE', $page->getPropertyValue('title'));
 
 // add standard header
+$xtpl->assign('HEAD', '<script src="lib/behaviour/behaviour.js" type="text/javascript"></script>' . "\n");
 $xtpl->assign('HEAD', '<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>' . "\n");
 $xtpl->assign('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>' . "\n");
 $xtpl->assign('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
 $xtpl->assign('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
 $xtpl->assign('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
+
 $xtpl->assign('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
+
+if( $edit_mode )
+{
+	$xtpl->assign('HEAD', '<link rel="stylesheet" href="edit_mode.css"></link>' . "\n");
+}
 
 foreach($available_components as $comp)
 {
@@ -213,27 +224,47 @@ if( $edit_mode )
 
 	// enumerate all the possible containers on the template
 	$xtpl->assign('ADDED_JS', "
-		var containers= new Array();
-		var nodes= document.getElementsByClassName('container');
-		for(var i= 0; i< nodes.length; i++){
-			containers.push( nodes[i].id );
 
+		function initSortable()
+		{
+			var containers= new Array();
+			var nodes= document.getElementsByClassName('container');
+			for(var i= 0; i< nodes.length; i++){
+				containers.push( nodes[i].id );
+
+			}
+
+			for(var i=0; i< containers.length; i++){
+				Sortable.create(containers[i], {
+					tag: 'div',
+					hoverclass: 'hover',
+					constraint: false,
+					dropOnEmpty: true,
+					containment: containers
+				})
+			}
 		}
 
-		for(var i=0; i< containers.length; i++){
-			Sortable.create(containers[i], {
-				tag: 'div',
-				hoverclass: 'hover',
-				constraint: false,
-				dropOnEmpty: true,
-				containment: containers
-			})
-		}
+		initSortable();
 	");
+
+// build page bar
+	$content.='
+	<div id="toolbar">
+
+		<div class="toolbar_item">
+			<input id="save_page" type="button" value="Save Page" disabled="true">
+		</div>
+
+		<div class="toolbar_item">
+			<input id="view_xml" onclick="window.open(\'\')" type="button" value="View saved XML">
+		</div>
+	</div>
+	';
 
 
 // build properties panel
-	$content= "
+	$content.= "
 		<div id=\"properties_panel\">
 			<div class=\"title\">Properties</div>
 			<div class=\"body\">";
@@ -319,7 +350,6 @@ if( $edit_mode )
 	}
 
 	$content.= "
-		<input id=\"save_page\" type=\"button\" value=\"Save Page\">
 		<input id=\"apply_properties\" type=\"button\" value=\"Apply Items Properties\">
 		<input id=\"delete_component\" type=\"button\" value=\"Remove component\">
 			</div>
@@ -335,6 +365,7 @@ if( $edit_mode )
 	$script.= '}';
 
 	$xtpl->assign('ADDED_JS', $script);
+
 	// and call it once to hide all panels at start
 	$xtpl->assign('ADDED_JS', 'hidePropertyPanels();');
 	$xtpl->assign('BODY', '<script src="scripts.js" type="text/javascript"></script>');
@@ -393,12 +424,51 @@ if( $edit_mode )
 
 		}
 
-		$script.= "};";
+		// check if position type changed
+		$script.= "
+			var curr_pos= Element.getStyle(this._div, 'position');
+
+			switch( this.position )
+			{
+			case 'container':
+				if( curr_pos != 'relative' )
+				{
+					// find first container and put the component in it
+					var cont= document.getElementsByClassName('container')[0];
+					this._div.style.position= 'relative';
+					this._div.style.left= '0';
+					this._div.style.top= '0';
+					cont.appendChild(this._div);
+					this._drag_obj.destroy();
+					initSortable();
+				}
+				break;
+
+			case 'fixed':
+			case 'absolute':
+				if( curr_pos != 'absolute' )
+				{
+					// remove from current container
+					this._div.parentNode.removeChild(this._div);
+
+					// then add it as a child of body
+					var body= document.getElementsByTagName('body').item(0);
+					this._div.style.position= 'absolute';
+					this._div.style.left= '0';
+					this._div.style.top= '0';
+
+					body.appendChild(this._div);
+					this._drag_obj= new Draggable(this._div.id, {snap: 10});
+				}
+				break;
+			}
+		};";
 	}
 
 	$xtpl->assign('ADDED_JS', $script);
+	$xtpl->assign('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
+	$xtpl->assign('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
 }
-
 
 
 // render the template

@@ -25,6 +25,24 @@ function component_clicked(target_div)
 }
 
 
+// fix to prevent selection bug under ie
+if (document.all)
+{
+  document.onselectstart= function(){
+  	return false;
+  };
+}
+
+Draggables.addObserver({
+	onStart: function(event_name, obj, e){
+		if( Element.hasClassName(obj.element, 'component') )
+		{
+			$('save_page').disabled= false;
+		}
+		//component_clicked(e.target); -> cause crash on ie...
+	}
+});
+
 
 // cookies handling
 function setCookie (name, value) {
