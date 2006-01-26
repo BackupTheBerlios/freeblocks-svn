@@ -6,6 +6,7 @@ BODY {
 	overflow: hidden;
 }
 
+
 #left_container, #middle_container, #right_container {
 	float: left;
 	border: 1px solid black;

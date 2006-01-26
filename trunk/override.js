@@ -1,28 +1,5 @@
 
 
-/*
-Draggable.prototype.updateDrag= function(event, pointer) {
-
-	if(!this.dragging)
-	{
-		this.startDrag(event);
-	}
-
-	Position.prepare();
-	Droppables.show(pointer, this.element);
-	Draggables.notify('onDrag', this, event);
-	this.draw(pointer);
-
-	if(this.options.change)
-	{
-		this.options.change(this);
-	}
-
-	// fix AppleWebKit rendering
-	if(navigator.appVersion.indexOf('AppleWebKit')>0) window.scrollBy(0,0);
-	Event.stop(event);
-};
-*/
 
 Draggable.prototype.draw= function(point) {
 	var pos = Position.cumulativeOffset(this.element);
@@ -72,6 +49,7 @@ Draggable.prototype.draw= function(point) {
 		style.visibility = ""; // fix gecko rendering
 	}
 }
+
 
 
 

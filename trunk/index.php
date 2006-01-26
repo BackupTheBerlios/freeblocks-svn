@@ -88,6 +88,10 @@ foreach( $storage->getComponentsData() as $comp_data )
 	require_once( dirname(__FILE__) . '/components/' . $class_name . '.php' );
 	$c= new $class_name();
 
+	unset($x, $y, $parent, $comp_id);
+
+	$x= $y= '';
+
 	foreach( $comp_data as $name => $val )
 	{
 		if( !in_array($name, array('type')) )
@@ -110,9 +114,9 @@ foreach( $storage->getComponentsData() as $comp_data )
 				$comp_id= $val;
 				break;
 			}
-
-			$c->setPropertyValue($name, $val);
 		}
+
+		$c->setPropertyValue($name, $val);
 	}
 
 	$page->addComponent($c);
@@ -141,11 +145,57 @@ foreach( $storage->getComponentsData() as $comp_data )
 		$xtpl->assign($parent, $c->renderComponent());
 		break;
 	}
+
+	$comp_class= get_class($c);
+
+	$script="
+		tmp= new {$comp_class}();
+		tmp._class_name= \"{$comp_class}\";
+		tmp._div= $('{$comp_id}');
+		tmp._div.obj= tmp;
+		tmp._div.style.left= '{$x}';
+		tmp._div.style.top= '{$y}';
+		tmp._div.onclick= function(){ component_clicked(this) };
+		$('{$comp_id}').obj= tmp;
+
+		handle= document.createElement('<div>');
+		handle.className= 'handle';
+
+		Element.setOpacity(handle, 0.1);
+
+		tmp._div.appendChild(handle);
+
+		if( tmp.updateContent == null )
+		{
+			tmp.updateContent= function(){};
+		}
+	";
+
+	foreach($c->getProperties() as $name => $prop)
+	{
+		$script.= "tmp['{$name}']= unescape('{$prop->value}');";
+	}
+
+
+	$xtpl->assign('ADDED_JS', $script);
 }
 
 
 $xtpl->assign('TEMPLATE_DIR', "themes/{$CONF['themes']['current']}");
 $xtpl->assign('TITLE', $page->getPropertyValue('title'));
+
+// add standard header
+$xtpl->assign('HEAD', '<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>' . "\n");
+$xtpl->assign('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>' . "\n");
+$xtpl->assign('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
+$xtpl->assign('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
+$xtpl->assign('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
+$xtpl->assign('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
+
+foreach($available_components as $comp)
+{
+	$xtpl->assign('HEAD', "<script src=\"components/{$comp}.js\" type=\"text/javascript\"></script>\n");
+}
 
 if( $edit_mode )
 {
@@ -190,6 +240,7 @@ if( $edit_mode )
 
 	foreach($available_components  as $comp)
 	{
+
 		$content.= "<div id=\"panel_{$comp}\" class=\"prop_panel\">
 					<div class=\"category\">
 						<div class=\"title\">{$comp}</div>";
@@ -286,6 +337,66 @@ if( $edit_mode )
 	$xtpl->assign('ADDED_JS', $script);
 	// and call it once to hide all panels at start
 	$xtpl->assign('ADDED_JS', 'hidePropertyPanels();');
+	$xtpl->assign('BODY', '<script src="scripts.js" type="text/javascript"></script>');
+
+
+	$script= '';
+	foreach($available_components as $comp)
+	{
+		$tmp= new $comp();
+		$script.= "\n{$comp}.prototype.fillPropertyPanel= function(){ ";
+
+		foreach($tmp->getProperties() as $prop)
+		{
+			switch($prop->type)
+			{
+			default:
+				$script.= "$('{$comp}_{$prop->name}').value= this.{$prop->name} || 'undef';";
+				break;
+
+			case Component::TYPE_SLIDER:
+				$script.= "$('{$comp}_{$prop->name}').slider.setValue( this.{$prop->name} || 0 );";
+				break;
+
+			case Component::TYPE_BOOL:
+				$script.= "$('{$comp}_{$prop->name}').checked= (this.{$prop->name} == 'true')?true:false;
+				if( $('{$comp}_{$prop->name}').onchange )
+				{
+					$('{$comp}_{$prop->name}').onchange();
+				}";
+				break;
+			}
+
+		}
+
+		$script.= "};";
+
+		$script.= "\n{$comp}.prototype.savePropertyPanel= function(){ ";
+
+		foreach($tmp->getProperties() as $prop){
+
+			switch($prop->type)
+			{
+			default:
+				$script.= "this.{$prop->name}= $('{$comp}_{$prop->name}').value;";
+				break;
+
+			case Component::TYPE_SLIDER:
+				$script.= "this.{$prop->name}= $('{$comp}_{$prop->name}').slider.values[0];";
+				break;
+
+			case Component::TYPE_BOOL:
+				$script.= "this.{$prop->name}= ($('{$comp}_{$prop->name}').checked)?'true':'false';";
+				break;
+
+			}
+
+		}
+
+		$script.= "};";
+	}
+
+	$xtpl->assign('ADDED_JS', $script);
 }
 
 
