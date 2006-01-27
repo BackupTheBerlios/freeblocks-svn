@@ -129,7 +129,7 @@ foreach( $storage->getComponentsData() as $comp_data )
 
 		if( $edit_mode )
 		{
-			$xtpl->assign('ADDED_JS', "
+			$xtpl->concat('ADDED_JS', "
 				$('{$comp_id}')._drag_obj= new Draggable('{$comp_id}', {snap: 10});
 			");
 		}
@@ -139,12 +139,12 @@ foreach( $storage->getComponentsData() as $comp_data )
 		$c->setCSSStyle('top', $y);
 		$c->setCSSStyle('z-index', 500);
 
-		$xtpl->assign('ADDED_CSS', $c->getCSS());
-		$xtpl->assign('BODY', $c->renderComponent());
+		$xtpl->concat('ADDED_CSS', $c->getCSS());
+		$xtpl->concat('BODY', $c->renderComponent());
 		break;
 
 	case 'container':
-		$xtpl->assign($parent, $c->renderComponent());
+		$xtpl->concat($parent, $c->renderComponent());
 		break;
 	}
 
@@ -181,37 +181,37 @@ foreach( $storage->getComponentsData() as $comp_data )
 	}
 
 
-	$xtpl->assign('ADDED_JS', $script);
+	$xtpl->concat('ADDED_JS', $script);
 }
 
 
-$xtpl->assign('TEMPLATE_DIR', "themes/{$CONF['themes']['current']}");
-$xtpl->assign('TITLE', $page->getPropertyValue('title'));
+$xtpl->concat('TEMPLATE_DIR', $CONF['themes']['base_folder'] . "/{$CONF['themes']['current']}");
+$xtpl->concat('TITLE', $page->getPropertyValue('title'));
 
 // add standard header
-$xtpl->assign('HEAD', '<script src="lib/behaviour/behaviour.js" type="text/javascript"></script>' . "\n");
-$xtpl->assign('HEAD', '<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>' . "\n");
-$xtpl->assign('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>' . "\n");
-$xtpl->assign('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
-$xtpl->assign('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
-$xtpl->assign('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="lib/behaviour/behaviour.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
 
-$xtpl->assign('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
+$xtpl->concat('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
 
 if( $edit_mode )
 {
-	$xtpl->assign('HEAD', '<link rel="stylesheet" href="edit_mode.css"></link>' . "\n");
+	$xtpl->concat('HEAD', '<link rel="stylesheet" href="edit_mode.css"></link>' . "\n");
 }
 
 foreach($available_components as $comp)
 {
-	$xtpl->assign('HEAD', "<script src=\"components/{$comp}.js\" type=\"text/javascript\"></script>\n");
+	$xtpl->concat('HEAD', "<script src=\"components/{$comp}.js\" type=\"text/javascript\"></script>\n");
 }
 
 if( $edit_mode )
 {
-	$xtpl->assign('TITLE', ' (Edit Mode)');
-	$xtpl->assign('ADDED_JS', "
+	$xtpl->concat('TITLE', ' (Edit Mode)');
+	$xtpl->concat('ADDED_JS', "
 		new Draggable('properties_panel',
 			{handle: 'title',
 			 change: function(obj){
@@ -220,10 +220,9 @@ if( $edit_mode )
 				setCookie('prop_y', obj.element.style.top, new Date(now.getTime() +3600 * 15 * 1000));
 			 }
 			}
-		);");
+		);
 
 	// enumerate all the possible containers on the template
-	$xtpl->assign('ADDED_JS', "
 
 		function initSortable()
 		{
@@ -264,75 +263,56 @@ if( $edit_mode )
 
 
 // build properties panel
-	$content.= "
-		<div id=\"properties_panel\">
-			<div class=\"title\">Properties</div>
-			<div class=\"body\">";
+
+	// open template for properties
+	$prop_xtpl= new XTemplate('base/templates/properties_panel.xtpl');
 
 	foreach($available_components  as $comp)
 	{
-
-		$content.= "<div id=\"panel_{$comp}\" class=\"prop_panel\">
-					<div class=\"category\">
-						<div class=\"title\">{$comp}</div>";
-
 		$tmp= new $comp();
 
 		foreach($tmp->getProperties() as $prop)
 		{
-			$content.= "<div class=\"item\">";
+
+			$prop_xtpl->assign('ID', $comp . '_' . $prop->name);
+			$prop_xtpl->assign('DISPLAY_NAME', $prop->dispname);
 
 
 			switch($prop->type)
 			{
-			default:
-				$content.= "<label for=\"{$comp}_{$prop->name}\">{$prop->dispname}</label><input class=\"prop\" id=\"{$comp}_{$prop->name}\" type=\"text\"/>";
-				break;
 
 			case BaseComponent::TYPE_TEXT:
-				$content.= "<label for=\"{$comp}_{$prop->name}\">{$prop->dispname}</label>";
+
 				if( !isset($prop->params['lines']) || ($prop->params['lines'] == 1) )
 				{
-					$content.= "<input class=\"prop\" id=\"{$comp}_{$prop->name}\" type=\"text\"/>";
+					$prop_xtpl->parse('main.component.item.text');
 				}
 				else
 				{
-					$content.= "<textarea class=\"prop\" id=\"{$comp}_{$prop->name}\" rows=\"{$prop->params['lines']}\"></textarea>";
+					$prop_xtpl-> assign('LINES', $prop->params['lines']);
+					$prop_xtpl->parse('main.component.item.textarea');
 				}
 				break;
 
 			case BaseComponent::TYPE_SLIDER:
-				$content.= "<table width=\"95%\" style=\"margin:0;padding:0;\">
-							<tr>
-							<td width=\"2px\">
-							<label for=\"{$comp}_{$prop->name}\">{$prop->dispname}</label>
-							</td>
-							<td>
-							<div id=\"{$comp}_{$prop->name}\" class=\"slider\">
-								<div id=\"handle_{$comp}_{$prop->name}\" class=\"slider_handle\"></div>
-							</div>
-							</td>
-							</tr>
-							</table>
-							<script>
-								$('{$comp}_{$prop->name}').slider= new Control.Slider('handle_{$comp}_{$prop->name}', '{$comp}_{$prop->name}',
-								{minimum: {$prop->params['min']},
-								 maximum: {$prop->params['max']}
-								});
+				foreach( $prop->params as $name => $val )
+				{
+					$prop_xtpl->assign('PARAM_' . strtoupper($name), $val);
+				}
 
-							</script>";
+				$prop_xtpl->parse('main.component.item.slider');
 				break;
 
 			case BaseComponent::TYPE_CHOICE:
-				$content.= "<label for=\"{$comp}_{$prop->name}\">{$prop->dispname}</label>
-							<select id=\"{$comp}_{$prop->name}\" >";
 
 				foreach($prop->params['values'] as $val => $label)
 				{
-					$content.= "<option value=\"{$val}\">{$label}</option>";
+					$prop_xtpl->assign('VALUE', $val);
+					$prop_xtpl->assign('LABEL', $label);
+					$prop_xtpl->parse('main.component.item.choice.option');
 				}
 
-				$content.= "</select>";
+				$prop_xtpl->parse('main.component.item.choice');
 				break;
 
 			case BaseComponent::TYPE_BOOL:
@@ -343,19 +323,17 @@ if( $edit_mode )
 
 			}
 
-			$content.= "</div>";
+			$prop_xtpl->parse('main.component.item');
 		}
 
-		$content.= "</div></div>";
+		$prop_xtpl->assign('COMP', $comp);
+		$prop_xtpl->parse('main.component');
 	}
 
-	$content.= "
-		<input id=\"apply_properties\" type=\"button\" value=\"Apply Items Properties\">
-		<input id=\"delete_component\" type=\"button\" value=\"Remove component\">
-			</div>
-		</div>";
+	// parse the main block
+	$prop_xtpl->parse('main');
 
-	$xtpl->assign('BODY', $content);
+	$xtpl->concat('BODY', trim($prop_xtpl->text('main')));
 
 	$script= 'function hidePropertyPanels(){';
 	foreach($available_components as $comp)
@@ -364,11 +342,11 @@ if( $edit_mode )
 	}
 	$script.= '}';
 
-	$xtpl->assign('ADDED_JS', $script);
+	$xtpl->concat('ADDED_JS', $script);
 
 	// and call it once to hide all panels at start
-	$xtpl->assign('ADDED_JS', 'hidePropertyPanels();');
-	$xtpl->assign('BODY', '<script src="scripts.js" type="text/javascript"></script>');
+	$xtpl->concat('ADDED_JS', 'hidePropertyPanels();');
+	$xtpl->concat('BODY', '<script src="scripts.js" type="text/javascript"></script>');
 
 
 	$script= '';
@@ -465,9 +443,9 @@ if( $edit_mode )
 		};";
 	}
 
-	$xtpl->assign('ADDED_JS', $script);
-	$xtpl->assign('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
-	$xtpl->assign('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
+	$xtpl->concat('ADDED_JS', $script);
+	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
+	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
 }
 
 

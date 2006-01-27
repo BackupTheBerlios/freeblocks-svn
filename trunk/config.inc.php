@@ -2,7 +2,7 @@
 
 // themes
 $CONF['themes']= array(
-	'base_folder' 	=> 'themes',
+	'base_folder' 	=> 'templates',
 	'current' 		=> 'default'
 );
 

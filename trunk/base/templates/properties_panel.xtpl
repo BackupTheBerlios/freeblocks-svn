@@ -1,0 +1,75 @@
+<!-- BEGIN: main -->
+<div id="properties_panel">
+	<div class="title">Properties</div>
+	<div class="body">
+
+		<!-- BEGIN: component -->
+		<div id="panel_{COMP}" class="prop_panel">
+			<div class="category">
+				<div class="title">{COMP}</div>
+
+				<!-- BEGIN: item -->
+				<div class="item">
+
+					<!-- BEGIN: text -->
+					<label for="{ID}">{DISPLAY_NAME}</label>
+					<input class="prop" id="{ID}" type="text"/>
+					<!-- END: text -->
+
+					<!-- BEGIN: textarea -->
+					<label for="{ID}">{DISPLAY_NAME}</label>
+					<textarea class="prop" id="{ID}" rows="{LINES}"></textarea>
+					<!-- END: textarea -->
+
+					<!-- BEGIN: choice -->
+					<label for="{ID}">{DISPLAY_NAME}</label>
+					<select id="{ID}" >
+						<!-- BEGIN: option -->
+						<option value="{VALUE}">{LABEL}</option>
+						<!-- END: option -->
+					</select>
+					<!-- END: choice -->
+
+
+					<!-- BEGIN: bool -->
+					<label for="{ID}">{DISPLAY_NAME}</label>
+					<input id="{ID}" type="checkbox"/>
+					<!-- END: bool -->
+
+
+					<!-- BEGIN: slider -->
+					<table width="95%" style="margin:0;padding:0;">
+					<tr>
+						<td width="2px">
+							<label for="{ID}">{DISPLAY_NAME}</label>
+						</td>
+						<td>
+							<div id="{ID}" class="slider">
+								<div id="handle_{ID}" class="slider_handle"></div>
+							</div>
+						</td>
+					</tr>
+					</table>
+							<script>
+								$('{ID}').slider= new Control.Slider('handle_{ID}', '{ID}',
+								{minimum: {PARAM_MIN},
+								 maximum: {PARAM_MAX}
+								});
+
+							</script>
+					<!-- END: slider -->
+
+				</div>
+				<!-- END: item -->
+
+			</div>
+		</div>
+		<!-- END: component -->
+
+		<input id="apply_properties" type="button" value="Apply Items Properties">
+		<input id="delete_component" type="button" value="Remove component">
+	</div>
+</div>
+
+<!-- END: main -->
+

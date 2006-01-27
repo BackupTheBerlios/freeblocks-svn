@@ -1,7 +1,7 @@
 <config>
 <page name="index" template="index.xtpl" title="Page title" servertype="ewon" serverip="127.0.0.1" serverport="80" >
-<component id="comp_1" type="StaticText" position="absolute"  x="500" y="330" text="sqdqsdqsd" />
-<component id="comp_2" type="StaticText" position="container" parent="left_container"  text="sqdqsdqsd" />
+<component id="comp_1" type="StaticText" position="absolute"  x="500" y="330" text="azerty" />
+<component id="comp_2" type="StaticText" position="container" parent="left_container"  text="tdgfbbd" />
 <component id="comp_3" type="Board" position="container" parent="middle_container">
 	<post title="hello" msg="sdfs sfsd sd fsd" user="toto" />
 	<post msg="fgh fj gj gh" user="bob" />

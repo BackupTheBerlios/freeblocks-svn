@@ -235,9 +235,43 @@ class XTemplate {
 			}
 		} else {
 
-			$this->vars[$name] .= $val;
+			$this->vars[$name] = $val;
 		}
 	}
+
+
+	/**
+     * concat value with actual variable content
+     *
+     * @access public
+     * @param string $name Variable to assign $val to
+     * @param string / array $val Value to assign to $name
+     */
+	function concat ($name, $val = '') {
+
+		if (is_array($name)) {
+
+			foreach ($name as $k => $v) {
+
+				$this->vars[$k].= $v;
+			}
+		} else {
+
+			$this->vars[$name].= $val;
+		}
+	}
+
+	/**
+     * test if a block exists
+     *
+     * @access public
+     * @param string $name block name
+     */
+	function block_exists ($name) {
+
+		return isset($this->vars[$name]);
+	}
+
 
 	/**
      * assign a file variable
@@ -307,18 +341,6 @@ class XTemplate {
 
 		foreach ($var_array as $k => $v) {
 
-			// Are there any comments in the tags {tag#a comment for documenting the template}
-			$any_comments = explode('#', $v);
-			$v = rtrim($any_comments[0]);
-
-			if (sizeof($any_comments) > 1) {
-
-				$comments = $any_comments[1];
-			} else {
-
-				$comments = '';
-			}
-
 			$sub = explode('.', $v);
 
 			if ($sub[0] == '_BLOCK_') {
@@ -349,6 +371,7 @@ class XTemplate {
 				} else {
 
 					$public = trim($public);
+
 					// SF Bug no. 810773 - thanks anonymous
 					$public = str_replace('\\', '\\\\', $public);
 					// Ensure dollars in strings are not evaluated reported by SadGeezer 31/3/04
@@ -402,7 +425,7 @@ class XTemplate {
 				// Replace str_replaces with preg_quote
 				//$public = preg_quote($public);
 				$public = str_replace('\\|', '|', $public);
-				$copy=preg_replace("|" . $this->tag_start_delim . $v . " ?#?" . $comments . $this->tag_end_delim . "|", "$public", $copy);
+				$copy=preg_replace("|" . $this->tag_start_delim . $v . " ?#?" . $comments . $this->tag_end_delim . "|", $public, $copy);
 			}
 		}
 
@@ -728,6 +751,7 @@ class XTemplate {
 					$this->block_parse_order[] = $cur_block_name;
 
 					//add contents. trinary operator eliminates assign error in E_ALL reporting
+					var_dump( trim($content) );
 					$blocks[$cur_block_name] = isset($blocks[$cur_block_name]) ? $blocks[$cur_block_name] . $content : $content;
 
 					// add {_BLOCK_.blockname} string to parent block
