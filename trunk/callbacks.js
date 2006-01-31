@@ -38,12 +38,13 @@ var rules= {
 			newInput.type= "hidden";
 			newInput.name= "lines[]";
 
-			newInput.value='<page servertype="' + $('server_type').value + '" serverip="' + $('server_ip').value + '" serverport="' + $('server_port').value + '" >';
+			newInput.value='<page name="' + $('page_name').value + '" template="' + $('page_template').value + '" >';
 			f.appendChild(newInput);
 
 			var nodes= document.getElementsByClassName('component');
-			for(var i= 0; i< nodes.length; i++)
+			for(var i= 0; i< 3; i++)
 			{
+
 				var obj= nodes[i].obj;
 				var newInput= document.createElement("input");
 				newInput.type= "hidden";
@@ -51,20 +52,47 @@ var rules= {
 				var x= nodes[i].style.left.replace(/px/i, '').replace(/pt/i, '');
 				var y= nodes[i].style.top.replace(/px/i, '').replace(/pt/i, '');
 
-
-				newInput.value= '<component type="' + obj._class_name + '" name="' + nodes[i].id +'" x="' + x + '" y="' + y + '" ';
+				newInput.value= '<component x="' + x + '" y="' + y + '" ';
 
 				for( property in obj )
 				{
-					if( (typeof obj[property] != "function") && (property.charAt(0) != '_') )
+					if( (typeof obj[property] != "function") && (property.charAt(0) != '_') &&
+						(property != "x") && (property != "y") )
 					{
+						//$('middle_container').innerHTML+= property + "<br/>";
 						newInput.value+= property + '="' + escape(obj[property]) + '" ';
 					}
 				}
 
-				newInput.value+= '/>';
 
-				$('page_limit').innerHTML+= newInput.value + "<br />";
+
+				// if node has children then include them as well
+				if( obj['_children'] != null )
+				{
+					newInput.value+= '>';
+
+					for(var j= 0; j< obj['_children'].length; j++)
+					{
+						var child= obj['_children'][j];
+						newInput.value+= "<" + child['tagName'] + " ";
+
+						for(prop in child)
+						{
+							if( (prop != "tagName") && (prop != "_v") )
+							{
+								newInput.value+= prop + '="' + escape(child[prop]) + '" ';
+							}
+						}
+
+						newInput.value+= " />";
+					}
+
+					newInput.value+= '</component>';
+				}
+				else
+				{
+					newInput.value+= '/>';
+				}
 
 				f.appendChild(newInput);
 			}
@@ -76,7 +104,6 @@ var rules= {
 
 			newInput.value='</page>';
 			f.appendChild(newInput);
-
 
 			f.submit();
 		}

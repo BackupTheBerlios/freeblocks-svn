@@ -54,12 +54,21 @@ abstract class BaseComponent
 		}
 
 		// insert property before
-		array_splice($this->_properties, $pos, 0, array($new_prop));
+		//this method does not works
+		//array_splice($this->_properties, $pos, 0, array($name => $new_prop));
+
+		$first_part= array_splice($this->_properties, 0, $pos);
+		$this->_properties= array_merge($first_part, array($name => $new_prop), $this->_properties);
 	}
 
 	function addPropertyAfter($target, $name, $dispname, $type, $value= "", $param= "")
 	{
 
+	}
+
+	function hasProperty($name)
+	{
+		return isset($this->_properties[$name]);
 	}
 
 

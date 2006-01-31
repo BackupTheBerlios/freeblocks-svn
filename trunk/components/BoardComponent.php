@@ -10,11 +10,11 @@ class BoardComponent extends Component
 	{
 		$content= "";
 
-		foreach($this->getPropertyValue('sub') as $post)
+		foreach($this->getPropertyValue('_sub') as $post)
 		{
 			$title= isset($post['title'])?$post['title']:'no title';
 			$user= isset($post['user'])?$post['user']:'anonymous';
-			$msg= isset($post['msg'])?$post['msg']:'no message';
+			$msg= isset($post['msg'])?urldecode($post['msg']):'no message';
 
 			$content.= "
 			<div class='post'>

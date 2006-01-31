@@ -10,7 +10,6 @@ class StaticTextComponent extends Component
 	{
 		parent::__construct();
 		$this->addPropertyBefore('width', 'text', 'Text', BaseComponent::TYPE_TEXT, '');
-
 	}
 
 	public function renderComponent()

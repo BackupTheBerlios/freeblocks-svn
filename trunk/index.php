@@ -177,7 +177,27 @@ foreach( $storage->getComponentsData() as $comp_data )
 
 	foreach($c->getProperties() as $name => $prop)
 	{
-		$script.= "tmp['{$name}']= unescape('{$prop->value}');";
+		$script.= "tmp['{$name}']= unescape('{$prop->value}');\n";
+	}
+
+	// if the component has children
+	// then create them on the js object
+	if( $c->hasProperty('_sub') && (count($c->getPropertyValue('_sub')) > 0)  )
+	{
+		$script.= "tmp._children= new Array();\n";
+
+		foreach( $c->getPropertyValue('_sub') as $child_data )
+		{
+			$script.="tmp._children.push({";
+
+			foreach( $child_data as $name => $val)
+			{
+				$script.= $name . ': "' . $val . '",';
+			}
+
+			$script.=" _v: null });\n";
+		}
+
 	}
 
 
@@ -248,8 +268,18 @@ if( $edit_mode )
 	");
 
 // build page bar
-	$content.='
+	$xtpl->concat('BODY', '
 	<div id="toolbar">
+
+		<div class="toolbar_item">
+			<label for="page_name">Page name:</label>
+			<input id="page_name" type="text" value="' . $_GET['page'] . '" disabled="true"/>
+		</div>
+
+		<div class="toolbar_item">
+			<label for="page_template">Page template:</label>
+			<input id="page_template" type="text" value="' . $page->getPropertyValue('template') . '" disabled="true"/>
+		</div>
 
 		<div class="toolbar_item">
 			<input id="save_page" type="button" value="Save Page" disabled="true">
@@ -259,7 +289,7 @@ if( $edit_mode )
 			<input id="view_xml" onclick="window.open(\'\')" type="button" value="View saved XML">
 		</div>
 	</div>
-	';
+	');
 
 
 // build properties panel
@@ -446,6 +476,13 @@ if( $edit_mode )
 	$xtpl->concat('ADDED_JS', $script);
 	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
 	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
+
+	// Store the form sent back to the php to save the page state
+	$xtpl->concat('BODY', '
+		<form id="savedPage" method="POST" action="save_page.php">
+		<input type="hidden" name="Submit" value="1" />
+		<input type="hidden" name="page" value="' . $_GET['page'] . '" />
+		</form>');
 }
 
 

@@ -417,7 +417,8 @@ class XTemplate {
 					$copy=preg_replace("|\s*" . $this->tag_start_delim . $v . " ?#?" . $comments . $this->tag_end_delim . "\s*\n|m", '', $copy);
 				}
 
-				$public = trim($public);
+				$public= ereg_replace("\n[\t\n ]*\n", "\n", trim($public));
+				//$public = trim($public);
 				// SF Bug no. 810773 - thanks anonymous
 				$public = str_replace('\\', '\\\\', $public);
 				// Ensure dollars in strings are not evaluated reported by SadGeezer 31/3/04
@@ -751,7 +752,6 @@ class XTemplate {
 					$this->block_parse_order[] = $cur_block_name;
 
 					//add contents. trinary operator eliminates assign error in E_ALL reporting
-					var_dump( trim($content) );
 					$blocks[$cur_block_name] = isset($blocks[$cur_block_name]) ? $blocks[$cur_block_name] . $content : $content;
 
 					// add {_BLOCK_.blockname} string to parent block

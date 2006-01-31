@@ -27,6 +27,8 @@ abstract class Storage
 	{
 		return $this->_components_data;
 	}
+
+	abstract public function savePage($components);
 }
 
 ?>

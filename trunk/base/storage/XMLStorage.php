@@ -37,7 +37,7 @@ class XMLStorage extends Storage
 							if( $subnode instanceof DOMElement )
 							{
 								$comp= array();
-								$comp['sub']= array();
+								$comp['_sub']= array();
 
 								// parse children nodes
 								foreach( $subnode->childNodes as $prop_node )
@@ -50,7 +50,8 @@ class XMLStorage extends Storage
 											$sub[$attr->name]= $attr->value;
 										}
 
-										$comp['sub'][]= $sub;
+										$sub['tagName']= $prop_node->nodeName;
+										$comp['_sub'][]= $sub;
 										//$comp->addXMLSubNode($prop_node);
 									}
 								}
@@ -68,6 +69,51 @@ class XMLStorage extends Storage
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * replace data for current page
+	 *
+	 * @param mixed $components components array
+	 */
+	public function savePage($page_node)
+	{
+		global $CONF;
+
+		// first load the xml file in memory
+		$filename= dirname(__FILE__) . '/../../configs/xml/' . $this->_connec_data[0];
+		if( file_exists($filename) )
+		{
+			$xml= new DOMDocument();
+			if( $xml->load($filename) )
+			{
+				// keep a reference on the top node
+				$config_node= $xml->documentElement;
+				$old_page_node= null;
+
+				// find the page node
+				foreach( $config_node->childNodes as $node )
+				{
+					if( ($node instanceof DOMElement) && ($node->nodeName == 'page') && ($node->getAttribute('name') == $_POST['page']) )
+					{
+						// we found it
+						$old_page_node= $node;
+						break;
+					}
+				}
+
+				// only continue if page exists
+				if( $old_page_node !== null )
+				{
+					$new_page_node= $xml->importNode($page_node, true);
+					$config_node->replaceChild($new_page_node, $old_page_node);
+
+					// save new xml to file
+					$xml->save($filename);
+				}
+			}
+
 		}
 	}
 }
