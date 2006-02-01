@@ -14,7 +14,7 @@
 
 #debug {
 	position: fixed;
-	left: 10px;
+	left: 50px;
 	top: 85%;
 }
 
@@ -153,6 +153,11 @@
 	-moz-border-radius-topright: 5px;
 	-moz-border-radius-bottomleft: 5px;
 	-moz-border-radius-bottomright: 5px;
+
+	min-height: 25px;
+	right: 0;
+	top: 0;
+	width: 350px;
 }
 
 #properties_panel .title {
@@ -178,13 +183,6 @@
 
 #properties_panel_pages {
 	display: none;
-}
-
-#properties_panel {
-	min-height: 25px;
-	right: 0;
-	top: 0;
-	width: 350px;
 }
 
 #properties_panel  .category {
@@ -242,6 +240,11 @@
 	border: 1px solid black;
 	padding: 1px;
 	padding-left: 3px;
+}
+
+#StaticText_text {
+	width: 100%;
+	border: 2px solid red;
 }
 
 .slider{

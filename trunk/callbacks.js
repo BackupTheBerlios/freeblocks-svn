@@ -26,58 +26,61 @@ var rules= {
 			var data= '';
 
 
-			data+='<page name="' + $('page_name').value + '" template="' + $('page_template').value + '" >';
+			data+='<page name="' + $('page_name').value + '" template="' + $('page_template').value + '" >\n';
 
 			var nodes= document.getElementsByClassName('component');
-			for(var i= 0; i< 3; i++)
+			for(var i= 0; i< nodes.length; i++)
 			{
 				var obj= nodes[i].obj;
 
-				obj.updateComponentProp();
-
-				var x= nodes[i].style.left.replace(/px/i, '').replace(/pt/i, '');
-				var y= nodes[i].style.top.replace(/px/i, '').replace(/pt/i, '');
-
-				data+= '<component x="' + x + '" y="' + y + '" ';
-
-				for( property in obj )
+				if( obj != null)
 				{
-					if( (typeof obj[property] != "function") && (property.charAt(0) != '_') &&
-						(property != "x") && (property != "y") )
+					obj.updateComponentProp();
+
+					var x= nodes[i].style.left.replace(/px/i, '').replace(/pt/i, '');
+					var y= nodes[i].style.top.replace(/px/i, '').replace(/pt/i, '');
+
+					data+= '<component x="' + x + '" y="' + y + '" ';
+
+					for( property in obj )
 					{
-						//$('middle_container').innerHTML+= property + "<br/>";
-						data+= property + '="' + escape(obj[property]) + '" ';
-					}
-				}
-
-
-
-				// if node has children then include them as well
-				if( obj['_children'] != null )
-				{
-					data+= '>';
-
-					for(var j= 0; j< obj['_children'].length; j++)
-					{
-						var child= obj['_children'][j];
-						data+= "<" + child['tagName'] + " ";
-
-						for(prop in child)
+						if( (typeof obj[property] != "function") && (property.charAt(0) != '_') &&
+							(property != "x") && (property != "y") )
 						{
-							if( (prop != "tagName") && (prop != "_v") )
+							//$('middle_container').innerHTML+= property + "<br/>";
+							data+= property + '="' + escape(obj[property]) + '" ';
+						}
+					}
+
+
+
+					// if node has children then include them as well
+					if( obj['_children'] != null )
+					{
+						data+= '>\n';
+
+						for(var j= 0; j< obj['_children'].length; j++)
+						{
+							var child= obj['_children'][j];
+							data+= "<" + child['tagName'] + " ";
+
+							for(prop in child)
 							{
-								data+= prop + '="' + escape(child[prop]) + '" ';
+								if( (prop != "tagName") && (prop != "_v") )
+								{
+									data+= prop + '="' + escape(child[prop]) + '" ';
+								}
 							}
+
+							data+= " />\n";
 						}
 
-						data+= " />";
+						data+= '</component>\n';
 					}
-
-					data+= '</component>';
-				}
-				else
-				{
-					data+= '/>';
+					else
+					{
+						data+= '/>\n';
+					}
 				}
 			}
 
@@ -99,6 +102,7 @@ var rules= {
 
 				onFailure: function(){ alert('failed'); }
 			});
+
 		}
 	}
 

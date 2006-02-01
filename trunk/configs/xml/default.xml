@@ -1,14 +1,16 @@
+<?xml version="1.0"?>
 <config>
-<page name="index" template="index.xtpl" title="Page title" servertype="ewon" serverip="127.0.0.1" serverport="80" >
-<component id="comp_1" type="StaticText" position="absolute"  x="500" y="330" text="azerty" />
-<component id="comp_2" type="StaticText" position="container" parent="left_container"  text="tdgfbbd" />
-<component id="comp_3" type="Board" position="container" parent="middle_container">
-	<post title="hello" msg="sdfs sfsd sd fsd" user="toto" />
-	<post msg="fgh fj gj gh" user="bob" />
-</component>
+<page name="index" template="index.xtpl">
+<component x="0" y="0" type="StaticText" id="comp_6" text="quatre" width="auto" position="container" parent="left_container"/>
+<component x="0.5" y="0" text="cinq" width="auto" position="container" type="StaticText" id="comp_2" parent="middle_container"/>
+<component x="-0.5" y="0" text="six" width="auto" position="container" type="StaticText" id="comp_5" parent="middle_container"/>
+<component x="-0.5" y="0" text="sept" width="auto" position="container" type="StaticText" id="comp_4" parent="right_container"/>
+<component x="476.5" y="153" text="trois" width="auto" position="absolute" type="StaticText" id="comp_1"/>
+<component x="400.5" y="291" text="deux" width="auto" position="absolute" type="StaticText" id="comp_3"/>
+<component x="530" y="250" type="StaticText" id="comp_7" text="un" width="auto" position="absolute" parent="left_container"/>
 </page>
 
 <page name="page2" template="index.xtpl">
-<component type="StaticText" />
+<component type="StaticText"/>
 </page>
 </config>

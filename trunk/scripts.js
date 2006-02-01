@@ -15,12 +15,13 @@ function component_clicked(target_div)
 		}
 
 		hidePropertyPanels();
-		$('panel_' + target_div.obj._class_name).style.display= "block";
+		$('panel_' + target_div.obj.type).style.display= "block";
 
 		lastselected= target_div.obj;
 		lastselected.fillPropertyPanel();
 		//lastselected._div.className= "component component_selected";
 		Element.addClassName(lastselected._div, 'component_selected');
+		$('disp_comp_id').innerHTML= lastselected._div.id;
 	}
 }
 

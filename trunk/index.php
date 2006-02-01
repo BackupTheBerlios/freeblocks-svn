@@ -86,7 +86,7 @@ $xtpl= new XTemplate($filename);
 
 foreach( $storage->getComponentsData() as $comp_data )
 {
-	$class_name= $comp_data['type'] . 'Component';
+	$class_name= $comp_data['type'];
 	require_once( dirname(__FILE__) . '/components/' . $class_name . '.php' );
 	$c= new $class_name();
 
@@ -154,13 +154,11 @@ foreach( $storage->getComponentsData() as $comp_data )
 	{
 		$script="
 			tmp= new {$comp_class}();
-			tmp._class_name= \"{$comp_class}\";
 			tmp._div= $('{$comp_id}');
 			tmp._div.obj= tmp;
 			tmp._div.style.left= '{$x}';
 			tmp._div.style.top= '{$y}';
 			tmp._div.onclick= function(){ component_clicked(this) };
-			$('{$comp_id}').obj= tmp;
 
 			tmp._drag_obj= tmp._div._drag_obj;
 
@@ -175,8 +173,6 @@ foreach( $storage->getComponentsData() as $comp_data )
 			{
 				tmp.updateContent= function(){};
 			}
-
-			tmp.type= \"{$comp_class}\";
 		";
 
 		foreach($c->getProperties() as $name => $prop)
@@ -220,6 +216,8 @@ $xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type
 $xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script language="javascript" type="text/javascript" src="tinymce/jscripts/tiny_mce/tiny_mce.js"></script>' . "\n");
+
 
 $xtpl->concat('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
 
@@ -320,9 +318,8 @@ if( $edit_mode )
 				new_comp.id= Component.getUnusedID();
 
 				tmp= new {$comp}();
-				tmp._class_name= \"{$comp}\";
 				tmp._div= new_comp;
-				tmp._div.obj= tmp;
+				new_comp.obj= tmp;
 				tmp._div.style.left= '0';
 				tmp._div.style.top= '0';
 				tmp._div.onclick= function(){ component_clicked(this) };
@@ -343,15 +340,11 @@ if( $edit_mode )
 				tmp._div.style.left= '0';
 				tmp._div.style.top= '0';
 
+				tmp['type']= '{$comp}';
+				tmp['id']= new_comp.id;
+
 				body.appendChild(tmp._div);
-				tmp._drag_obj= new Draggable(tmp._div.id);";
-
-				foreach($c->getProperties() as $name => $prop)
-				{
-					$script.= "tmp['{$name}']= unescape('{$prop->value}');\n";
-				}
-
-		$script.= "
+				tmp._drag_obj= new Draggable(tmp._div.id);
 				Element.show(new_comp);
 			}
 		";
@@ -366,6 +359,13 @@ if( $edit_mode )
 
 
 // build properties panel
+
+	$xtpl->concat('ADDED_JS', '
+		tinyMCE.init({
+			mode : "textareas",
+			theme : "advanced"
+		});
+	');
 
 	// open template for properties
 	$prop_xtpl= new XTemplate('base/templates/properties_panel.xtpl');
@@ -452,61 +452,62 @@ if( $edit_mode )
 	$xtpl->concat('BODY', '<script src="scripts.js" type="text/javascript"></script>');
 
 
-	$script= '';
+	$script_fillProperty= '';
+	$script_saveProperty= '';
 	foreach($available_components as $comp)
 	{
 		$tmp= new $comp();
-		$script.= "\n{$comp}.prototype.fillPropertyPanel= function(){ ";
+
+		$script_init_obj= '';
+
+		$script_fillProperty.= "\n{$comp}.prototype.fillPropertyPanel= function(){ ";
+		$script_saveProperty.= "\n{$comp}.prototype.savePropertyPanel= function(){ ";
 
 		foreach($tmp->getProperties() as $prop)
 		{
+			$script_init_obj.= $comp . '.prototype.' . $prop->name . "= '{$prop->value}';";
+
 			switch($prop->type)
 			{
 			default:
-				$script.= "$('{$comp}_{$prop->name}').value= this.{$prop->name} || 'undef';";
+				$script_fillProperty.= "$('{$comp}_{$prop->name}').value= this.{$prop->name} || 'undef';";
+				$script_saveProperty.= "this.{$prop->name}= $('{$comp}_{$prop->name}').value;";
 				break;
 
+			case Component::TYPE_TEXT:
+				$script_fillProperty.= "
+					$('{$comp}_{$prop->name}').value= this.{$prop->name} || 'undef';
+					tinyMCE.updateContent('{$comp}_{$prop->name}');
+				";
+				$script_saveProperty.= "
+					tinyMCE.triggerSave();
+					this.{$prop->name}= $('{$comp}_{$prop->name}').value;
+				";
+				break;
+
+
 			case Component::TYPE_SLIDER:
-				$script.= "$('{$comp}_{$prop->name}').slider.setValue( this.{$prop->name} || 0 );";
+				$script_fillProperty.= "$('{$comp}_{$prop->name}').slider.setValue( this.{$prop->name} || 0 );";
+				$script_saveProperty.= "this.{$prop->name}= $('{$comp}_{$prop->name}').slider.values[0];";
 				break;
 
 			case Component::TYPE_BOOL:
-				$script.= "$('{$comp}_{$prop->name}').checked= (this.{$prop->name} == 'true')?true:false;
+				$script_fillProperty.= "$('{$comp}_{$prop->name}').checked= (this.{$prop->name} == 'true')?true:false;
 				if( $('{$comp}_{$prop->name}').onchange )
 				{
 					$('{$comp}_{$prop->name}').onchange();
 				}";
+
+				$script_saveProperty.= "this.{$prop->name}= ($('{$comp}_{$prop->name}').checked)?'true':'false';";
 				break;
 			}
 
 		}
 
-		$script.= "};";
-
-		$script.= "\n{$comp}.prototype.savePropertyPanel= function(){ ";
-
-		foreach($tmp->getProperties() as $prop){
-
-			switch($prop->type)
-			{
-			default:
-				$script.= "this.{$prop->name}= $('{$comp}_{$prop->name}').value;";
-				break;
-
-			case Component::TYPE_SLIDER:
-				$script.= "this.{$prop->name}= $('{$comp}_{$prop->name}').slider.values[0];";
-				break;
-
-			case Component::TYPE_BOOL:
-				$script.= "this.{$prop->name}= ($('{$comp}_{$prop->name}').checked)?'true':'false';";
-				break;
-
-			}
-
-		}
+		$script_fillProperty.= "};";
 
 		// check if position type changed
-		$script.= "
+		$script_saveProperty.= "
 			var curr_pos= Element.getStyle(this._div, 'position');
 
 			switch( this.position )
@@ -547,7 +548,9 @@ if( $edit_mode )
 		};";
 	}
 
-	$xtpl->concat('ADDED_JS', $script);
+	$xtpl->concat('ADDED_JS', $script_fillProperty);
+	$xtpl->concat('ADDED_JS', $script_saveProperty);
+	$xtpl->concat('ADDED_JS', $script_init_obj);
 	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
 	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
 

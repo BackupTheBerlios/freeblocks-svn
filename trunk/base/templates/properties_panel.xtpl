@@ -1,6 +1,6 @@
 <!-- BEGIN: main -->
 <div id="properties_panel">
-	<div class="title">Properties</div>
+	<div class="title">Properties of <span id="disp_comp_id"></span></div>
 	<div class="body">
 
 		<!-- BEGIN: component -->
@@ -17,7 +17,6 @@
 					<!-- END: text -->
 
 					<!-- BEGIN: textarea -->
-					<label for="{ID}">{DISPLAY_NAME}</label>
 					<textarea class="prop" id="{ID}" rows="{LINES}"></textarea>
 					<!-- END: textarea -->
 

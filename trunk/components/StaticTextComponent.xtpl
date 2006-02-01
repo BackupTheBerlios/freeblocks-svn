@@ -1,5 +1,0 @@
-<!-- BEGIN: main -->
-<div id="{ID}" class="component textcomponent">
-	{CONTENT}
-</div>
-<!-- END: main -->
