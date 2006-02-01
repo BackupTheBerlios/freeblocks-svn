@@ -44,6 +44,35 @@ Draggables.addObserver({
 });
 
 
+// loading indicator
+function displayloading(){
+	$('loading_indicator').style.display= 'block';
+}
+
+function hideLoading(){
+	$('loading_indicator').style.display= 'none';
+}
+
+
+// sucess/failure display
+function add_display_msg(text, bgcolor){
+	var orig= document.getElementsByClassName('error_display')[0];
+	var div= orig.cloneNode(true);
+	var top= document.getElementById('alert_container');
+
+
+	div.style.display= "block";
+	div.style.backgroundColor= bgcolor;
+	div.childNodes.item(1).nodeValue= text;
+
+	//Element.setOpacity(div, 1.0);
+
+	top.insertBefore(div, orig);
+
+	Effect.Shake(div);
+}
+
+
 // cookies handling
 function setCookie (name, value) {
 	var argv=setCookie.arguments;

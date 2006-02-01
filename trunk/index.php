@@ -55,7 +55,7 @@ if( $dir )
 		if( !in_array($fname, array(".", "..")) && ereg("([^.]+)\.php", $fname, $parts) )
 		{
 			// load class definition
-			include_once("components/" . $fname);
+			require_once("components/" . $fname);
 			$available_components[]= $parts[1];
 		}
 	}
@@ -150,54 +150,59 @@ foreach( $storage->getComponentsData() as $comp_data )
 
 	$comp_class= get_class($c);
 
-	$script="
-		tmp= new {$comp_class}();
-		tmp._class_name= \"{$comp_class}\";
-		tmp._div= $('{$comp_id}');
-		tmp._div.obj= tmp;
-		tmp._div.style.left= '{$x}';
-		tmp._div.style.top= '{$y}';
-		tmp._div.onclick= function(){ component_clicked(this) };
-		$('{$comp_id}').obj= tmp;
-
-		tmp._drag_obj= tmp._div._drag_obj;
-
-		handle= document.createElement('<div>');
-		handle.className= 'handle';
-
-		Element.setOpacity(handle, 0.1);
-
-		tmp._div.appendChild(handle);
-
-		if( tmp.updateContent == null )
-		{
-			tmp.updateContent= function(){};
-		}
-	";
-
-	foreach($c->getProperties() as $name => $prop)
+	if( $edit_mode )
 	{
-		$script.= "tmp['{$name}']= unescape('{$prop->value}');\n";
-	}
+		$script="
+			tmp= new {$comp_class}();
+			tmp._class_name= \"{$comp_class}\";
+			tmp._div= $('{$comp_id}');
+			tmp._div.obj= tmp;
+			tmp._div.style.left= '{$x}';
+			tmp._div.style.top= '{$y}';
+			tmp._div.onclick= function(){ component_clicked(this) };
+			$('{$comp_id}').obj= tmp;
 
-	// if the component has children
-	// then create them on the js object
-	if( $c->hasProperty('_sub') && (count($c->getPropertyValue('_sub')) > 0)  )
-	{
-		$script.= "tmp._children= new Array();\n";
+			tmp._drag_obj= tmp._div._drag_obj;
 
-		foreach( $c->getPropertyValue('_sub') as $child_data )
-		{
-			$script.="tmp._children.push({";
+			handle= document.createElement('<div>');
+			handle.className= 'handle';
 
-			foreach( $child_data as $name => $val)
+			Element.setOpacity(handle, 0.1);
+
+			tmp._div.appendChild(handle);
+
+			if( tmp.updateContent == null )
 			{
-				$script.= $name . ': "' . $val . '",';
+				tmp.updateContent= function(){};
 			}
 
-			$script.=" _v: null });\n";
+			tmp.type= \"{$comp_class}\";
+		";
+
+		foreach($c->getProperties() as $name => $prop)
+		{
+			$script.= "tmp['{$name}']= unescape('{$prop->value}');\n";
 		}
 
+		// if the component has children
+		// then create them on the js object
+		if( $c->hasProperty('_sub') && (count($c->getPropertyValue('_sub')) > 0)  )
+		{
+			$script.= "tmp._children= new Array();\n";
+
+			foreach( $c->getPropertyValue('_sub') as $child_data )
+			{
+				$script.="tmp._children.push({";
+
+				foreach( $child_data as $name => $val)
+				{
+					$script.= $name . ': "' . $val . '",';
+				}
+
+				$script.=" _v: null });\n";
+			}
+
+		}
 	}
 
 
@@ -232,7 +237,7 @@ if( $edit_mode )
 {
 	$xtpl->concat('TITLE', ' (Edit Mode)');
 	$xtpl->concat('ADDED_JS', "
-		new Draggable('properties_panel',
+		var drag_prop= new Draggable('properties_panel',
 			{handle: 'title',
 			 change: function(obj){
 			 	var now= new Date();
@@ -241,6 +246,9 @@ if( $edit_mode )
 			 }
 			}
 		);
+
+		drag_prop.element.style.left= getCookie('prop_x');
+		drag_prop.element.style.top= getCookie('prop_y');
 
 	// enumerate all the possible containers on the template
 
@@ -288,8 +296,73 @@ if( $edit_mode )
 		<div class="toolbar_item">
 			<input id="view_xml" onclick="window.open(\'\')" type="button" value="View saved XML">
 		</div>
+
+		<div id="loading_indicator">Loading...
+		</div>
 	</div>
 	');
+
+// build components bar
+	$content= '<div id="components_panel">';
+
+	foreach($available_components as $comp)
+	{
+		$c= new $comp();
+
+		$content.= "<a class='item' href='' onclick='create_" . $comp . "(); return false;' style=\"background: url('base/img/" . call_user_method('getIcon', $comp) . "') no-repeat center center\" ></a>";
+		$script= "
+			function create_{$comp}(){
+				var orig= $('model_{$comp}');
+				var new_comp= orig.cloneNode(true);
+
+				var body= document.getElementsByTagName('body').item(0);
+
+				new_comp.id= Component.getUnusedID();
+
+				tmp= new {$comp}();
+				tmp._class_name= \"{$comp}\";
+				tmp._div= new_comp;
+				tmp._div.obj= tmp;
+				tmp._div.style.left= '0';
+				tmp._div.style.top= '0';
+				tmp._div.onclick= function(){ component_clicked(this) };
+
+				handle= document.createElement('<div>');
+				handle.className= 'handle';
+
+				Element.setOpacity(handle, 0.1);
+
+				tmp._div.appendChild(handle);
+
+				if( tmp.updateContent == null )
+				{
+					tmp.updateContent= function(){};
+				}
+
+				tmp._div.style.position= 'absolute';
+				tmp._div.style.left= '0';
+				tmp._div.style.top= '0';
+
+				body.appendChild(tmp._div);
+				tmp._drag_obj= new Draggable(tmp._div.id);";
+
+				foreach($c->getProperties() as $name => $prop)
+				{
+					$script.= "tmp['{$name}']= unescape('{$prop->value}');\n";
+				}
+
+		$script.= "
+				Element.show(new_comp);
+			}
+		";
+
+		$xtpl->concat('ADDED_JS', $script);
+	}
+
+	$content.= '</div>';
+
+	$xtpl->concat('BODY', $content);
+
 
 
 // build properties panel
@@ -447,6 +520,7 @@ if( $edit_mode )
 					this._div.style.left= '0';
 					this._div.style.top= '0';
 					cont.appendChild(this._div);
+					this.parent= cont.id;
 					this._drag_obj.destroy();
 					initSortable();
 				}
@@ -477,12 +551,26 @@ if( $edit_mode )
 	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
 	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
 
+	// add model for each component
+	foreach($available_components as $comp)
+	{
+		$tmp= new $comp();
+		$tmp->setPropertyValue('id', 'model_' . $comp);
+		$tmp->setPropertyValue('display', 'none');
+		$xtpl->concat('BODY', $tmp->renderComponent());
+		$xtpl->concat('ADDED_JS', 'Element.hide("' . 'model_' . $comp . '");');
+	}
+
 	// Store the form sent back to the php to save the page state
 	$xtpl->concat('BODY', '
 		<form id="savedPage" method="POST" action="save_page.php">
 		<input type="hidden" name="Submit" value="1" />
-		<input type="hidden" name="page" value="' . $_GET['page'] . '" />
-		</form>');
+		<input type="hidden" id="old_page_name" name="page" value="' . $_GET['page'] . '" />
+		</form>
+		<div id="alert_container">
+		<div style="display: none" class="error_display"><a class="error_close" href="" onclick="Element.remove(this.parentNode);return false;">Click here to close</a>bla bla</div>
+		</div>
+		');
 }
 
 

@@ -2,9 +2,8 @@
 
 require_once(dirname(__FILE__) . "/config.inc.php");
 
-
 // save XML page
-if( isset($_POST["Submit"]) )
+if( isset($_POST["lines"]) )
 {
 
 	// load the storage class
@@ -25,35 +24,32 @@ if( isset($_POST["Submit"]) )
 		die("Storage class file not found: '{$storage_class_path}'");
 	}
 
-	$storage= new $storage_class( array($CONF['configs']['current'], $_GET['page']) );
+	$storage= new $storage_class( array($CONF['configs']['current'], $_POST['page']) );
 
-	$lines= join("\n", $_POST['lines']);
-
-	$page_xml= new DOMDocument();
-	if( $page_xml->loadXML($lines) )
-	{
-		$storage->savePage($page_xml->documentElement);
-	}
-
-
-
-	/*
-	$file= fopen($_POST["page"], "w");
-	fwrite($file, "<config>\n");
+	//$lines= stripcslashes(join("\n", $_POST['lines']));
 	$lines= $_POST["lines"];
 
-	foreach($lines as $l)
+	if( get_magic_quotes_gpc() )
 	{
-		fwrite($file, stripcslashes($l) . "\n");
+		$lines= stripcslashes($lines);
 	}
 
-	fwrite($file, "</config>\n");
-	fclose($file);
-	//echo "File saved.<br />\n";
-	//echo "<a href=\"edit.php?page={$_GET['page']}\">Return to Editor</a><br />\n";
-	//echo "<a href=\"{$_GET['page']}\">Open Generated XML file</a>";
-	$success_msg= "XML file saved";
-	*/
+	header('Content-Type: text/xml');
+	echo '<?xml version="1.0" ?>';
+	echo '<root>';
+
+	$page_xml= new DOMDocument();
+	if( @$page_xml->loadXML($lines) )
+	{
+		$storage->savePage($page_xml->documentElement);
+		echo '<return ret="ok" msg="XML file saved" />';
+	}
+	else
+	{
+		echo '<return ret="err" msg="Unable to save XML file" />';
+	}
+
+	echo '</root>';
 }
 
 ?>

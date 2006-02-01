@@ -1,14 +1,5 @@
 var rules= {
 
-	'.error_close': function(el){
-		el.onclick= function(e){
-
-			//this.parentNode.style.display= "none";
-			Element.remove(this.parentNode);
-			return false;
-		}
-	},
-
 	'#apply_properties': function(el){
 		el.onclick= function(e){
 			lastselected.savePropertyPanel();
@@ -32,27 +23,22 @@ var rules= {
 		el.onclick= function(){
 			var opt = document.getElementById('properties_panel') ;
 			var f= document.getElementById("savedPage");
+			var data= '';
 
-			// first line
-			var newInput= document.createElement("input");
-			newInput.type= "hidden";
-			newInput.name= "lines[]";
 
-			newInput.value='<page name="' + $('page_name').value + '" template="' + $('page_template').value + '" >';
-			f.appendChild(newInput);
+			data+='<page name="' + $('page_name').value + '" template="' + $('page_template').value + '" >';
 
 			var nodes= document.getElementsByClassName('component');
 			for(var i= 0; i< 3; i++)
 			{
-
 				var obj= nodes[i].obj;
-				var newInput= document.createElement("input");
-				newInput.type= "hidden";
-				newInput.name= "lines[]";
+
+				obj.updateComponentProp();
+
 				var x= nodes[i].style.left.replace(/px/i, '').replace(/pt/i, '');
 				var y= nodes[i].style.top.replace(/px/i, '').replace(/pt/i, '');
 
-				newInput.value= '<component x="' + x + '" y="' + y + '" ';
+				data+= '<component x="' + x + '" y="' + y + '" ';
 
 				for( property in obj )
 				{
@@ -60,7 +46,7 @@ var rules= {
 						(property != "x") && (property != "y") )
 					{
 						//$('middle_container').innerHTML+= property + "<br/>";
-						newInput.value+= property + '="' + escape(obj[property]) + '" ';
+						data+= property + '="' + escape(obj[property]) + '" ';
 					}
 				}
 
@@ -69,43 +55,50 @@ var rules= {
 				// if node has children then include them as well
 				if( obj['_children'] != null )
 				{
-					newInput.value+= '>';
+					data+= '>';
 
 					for(var j= 0; j< obj['_children'].length; j++)
 					{
 						var child= obj['_children'][j];
-						newInput.value+= "<" + child['tagName'] + " ";
+						data+= "<" + child['tagName'] + " ";
 
 						for(prop in child)
 						{
 							if( (prop != "tagName") && (prop != "_v") )
 							{
-								newInput.value+= prop + '="' + escape(child[prop]) + '" ';
+								data+= prop + '="' + escape(child[prop]) + '" ';
 							}
 						}
 
-						newInput.value+= " />";
+						data+= " />";
 					}
 
-					newInput.value+= '</component>';
+					data+= '</component>';
 				}
 				else
 				{
-					newInput.value+= '/>';
+					data+= '/>';
 				}
-
-				f.appendChild(newInput);
 			}
 
-			// last line
-			var newInput= document.createElement("input");
-			newInput.type= "hidden";
-			newInput.name= "lines[]";
+			data+='</page>';
 
-			newInput.value='</page>';
-			f.appendChild(newInput);
+			displayloading();
 
-			f.submit();
+			new Ajax.Request('save_page.php', {
+
+				parameters: 'lines=' + data + "&page=" + $('old_page_name').value,
+
+				onSuccess: function(req){
+					var xml= req.responseXML.getElementsByTagName('return').item(0);
+
+					add_display_msg(xml.getAttribute('msg'), (xml.getAttribute('ret') == "ok")?'lightgreen':'red');
+					$('save_page').disabled= true;
+					hideLoading();
+				},
+
+				onFailure: function(){ alert('failed'); }
+			});
 		}
 	}
 

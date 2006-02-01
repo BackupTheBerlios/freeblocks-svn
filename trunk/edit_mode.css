@@ -9,6 +9,7 @@
 
 .component {
 	cursor: move;
+	min-height: 20px;
 }
 
 #debug {
@@ -17,6 +18,15 @@
 	top: 85%;
 }
 
+
+#loading_indicator {
+	display: none;
+	background: url('base/img/indicator.gif') no-repeat left center;
+	padding-left: 20px;
+	float: right;
+	line-height: 30px;
+	margin-right: 10px;
+}
 
 
 /* properties */
@@ -31,8 +41,41 @@
 
 
 
+/******************
+	ERROR
+*/
 
+#alert_container {
+	position: absolute;
+	z-index: 2000;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
 
+.error_display {
+	float: left;
+	width: 100%;
+	height: 20px;
+	border: 1px solid black;
+	border-top: none;
+	background-color: orange;
+	text-align: center;
+	font-weight: bold;
+	line-height: 20px;
+	padding: 0;
+	margin: 0;
+}
+
+.error_close {
+	float: right;
+	margin: 0;
+	padding: 0;
+	margin-right: 20px;
+	height: 20px;
+	text-decoration: none;
+	color: black;
+}
 
 
 
@@ -64,6 +107,36 @@
 }
 
 /**************/
+/* Components */
+
+#components_panel {
+	position: fixed;
+	left: 0;
+	top: 10%;
+	height: 80%;
+	width: 30px;
+
+	border: 1px solid black;
+	background: #E0E0E0;
+
+	margin: 0;
+	padding: 0;
+}
+
+#components_panel .item {
+	border: none;
+	border-bottom: 1px solid black;
+	display: block;
+	width: 30px;
+	height: 30px;
+}
+
+#components_panel .item img{
+	border: none;
+
+}
+
+/**************/
 /* Properties */
 
 #properties_panel {
@@ -74,7 +147,7 @@
 
 	background-color: #EEEEEE;
 	border: 1px dashed black;
-	z-index: 10000;
+	z-index: 1000;
 
 	-moz-border-radius-topleft: 5px;
 	-moz-border-radius-topright: 5px;

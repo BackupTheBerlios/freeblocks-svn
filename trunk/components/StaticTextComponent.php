@@ -12,9 +12,15 @@ class StaticTextComponent extends Component
 		$this->addPropertyBefore('width', 'text', 'Text', BaseComponent::TYPE_TEXT, '');
 	}
 
+	public function getIcon()
+	{
+		return 'indicator.gif';
+	}
+
 	public function renderComponent()
 	{
-		$this->xtpl->assign('CONTENT', $this->getPropertyValue('text'));
+		$text= ($this->hasProperty('text') && ($this->getPropertyValue('text') != ''))?$this->getPropertyValue('text'):'no text';
+		$this->xtpl->assign('CONTENT', $text);
 		return parent::renderComponent();
 	}
 }

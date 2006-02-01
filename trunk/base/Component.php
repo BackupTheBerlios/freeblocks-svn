@@ -136,6 +136,8 @@ abstract class Component extends BaseComponent
 		));
 	}
 
+	abstract public function getIcon();
+
 	public function renderComponent()
 	{
 		$this->xtpl->assign('ID', $this->getPropertyValue('id'));
