@@ -366,15 +366,14 @@ if( $edit_mode )
 			theme 		: "advanced",
 			language	: "en",
 			plugins 	: "advimage",
-			file_browser_callback : "mcFileManager.filebrowserCallBack",
+			external_image_list_url : "img_list.js.php",
+			advimage_styles : "float_left;float_right",
+			theme_advanced_disable : "formatselect"
 		});
 
-		function fileBrowserCallBack(field_name, url, type, win) {
-			// This is where you insert your custom filebrowser logic
-			alert("Example of filebrowser callback: field_name: " + field_name + ", url: " + url + ", type: " + type);
-
-			// Insert new URL, this would normaly be done in a popup
-			win.document.forms[0].elements[field_name].value = "someurl.htm";
+		function myCustomFileBrowser(field_name, url, type, win) {
+			// Do custom browser logic
+			win.document.forms[0].elements[field_name].value = "my browser value";
 		}
 	');
 
