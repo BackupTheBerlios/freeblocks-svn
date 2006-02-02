@@ -17,7 +17,7 @@
 					<!-- END: text -->
 
 					<!-- BEGIN: textarea -->
-					<textarea class="prop" id="{ID}" rows="{LINES}"></textarea>
+					<textarea class="prop" id="{ID}" rows="{LINES}" style="width:100%;"></textarea>
 					<!-- END: textarea -->
 
 					<!-- BEGIN: choice -->

@@ -362,9 +362,20 @@ if( $edit_mode )
 
 	$xtpl->concat('ADDED_JS', '
 		tinyMCE.init({
-			mode : "textareas",
-			theme : "advanced"
+			mode 		: "textareas",
+			theme 		: "advanced",
+			language	: "en",
+			plugins 	: "advimage",
+			file_browser_callback : "mcFileManager.filebrowserCallBack",
 		});
+
+		function fileBrowserCallBack(field_name, url, type, win) {
+			// This is where you insert your custom filebrowser logic
+			alert("Example of filebrowser callback: field_name: " + field_name + ", url: " + url + ", type: " + type);
+
+			// Insert new URL, this would normaly be done in a popup
+			win.document.forms[0].elements[field_name].value = "someurl.htm";
+		}
 	');
 
 	// open template for properties
