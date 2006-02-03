@@ -14,13 +14,14 @@
 	{LEFT_CONTAINER}
 </div>
 
+<div id="right_container" class="container">
+	{RIGHT_CONTAINER}
+</div>
+
 <div id="middle_container" class="container">
 	{MIDDLE_CONTAINER}
 </div>
 
-<div id="right_container" class="container">
-	{RIGHT_CONTAINER}
-</div>
 
 {BODY}
 

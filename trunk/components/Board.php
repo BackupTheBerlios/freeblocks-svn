@@ -22,13 +22,13 @@ class Board extends Component
 			{
 				$title= isset($post['title'])?$post['title']:'no title';
 				$user= isset($post['user'])?$post['user']:'anonymous';
-				$msg= isset($post['msg'])?urldecode($post['msg']):'no message';
+				$msg= isset($post['msg'])?$post['msg']:'no message';
 
 				$content.= "
 				<div class='post'>
 					<div class='title'>{$title}</div>
 					<div class='user'>Posted by {$user}</div>
-					<div class='text'>P{$msg}</div>
+					<div class='text'>{$msg}</div>
 				</div>";
 			}
 		}

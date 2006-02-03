@@ -47,7 +47,7 @@ class XMLStorage extends Storage
 										$sub= array();
 										foreach( $prop_node->attributes as $attr )
 										{
-											$sub[$attr->name]= $attr->value;
+											$sub[$attr->name]= rawurldecode($attr->value);
 										}
 
 										$sub['tagName']= $prop_node->nodeName;
@@ -59,7 +59,7 @@ class XMLStorage extends Storage
 
 								foreach($subnode->attributes as $attr)
 								{
-									$comp[$attr->name]= $attr->value;
+									$comp[$attr->name]= rawurldecode($attr->value);
 									//$comp->setAttribute($attr->name, $attr->value);
 								}
 

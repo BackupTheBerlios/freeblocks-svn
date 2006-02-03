@@ -2,31 +2,33 @@
 	page layout
 */
 
-BODY {
-	overflow: hidden;
-}
-
-
-#left_container, #middle_container, #right_container {
-	float: left;
-	padding: 0;
+BODY *{
+	/*overflow: hidden;*/
 	margin: 0;
-
-	top: 10px;
-
-	width: 14%;
-
+	padding: 0;
 }
 
-#left_container { 	left: 10px; }
-#right_container {	float: right; right: 10px; }
-#middle_container { width: 60%; margin-left: 5%; margin-right: 5%; }
+#middle_container {
+	margin-left: 22%;
+	margin-right: 22%;
+	border: 1px solid gray;
+}
+
+#left_container, #right_container {
+	padding: 0;
+	margin: 10px;
+
+	width: 20%;
+	border: 1px solid gray;
+}
+
+#left_container { 	float: left; }
+#right_container {	float: right; }
+
 
 .component {
 	margin: 0;
 	padding: 0;
-
-	background-color: lightgreen;
 }
 
 .hover {
@@ -38,16 +40,16 @@ BODY {
 
 /* Board */
 
-.boardcomponent .post {
+.board_component .post {
 	border-bottom: 2px solid black;
 }
-.boardcomponent .post .title {
+.board_component .post .title {
 	float: left;
 }
-.boardcomponent .post .user {
+.board_component .post .user {
 	float: right;
 }
-.boardcomponent .post .text {
+.board_component .post .text {
 	clear: both;
 	padding: 10px;
 	border-top: 1px solid black;

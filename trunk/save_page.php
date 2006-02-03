@@ -2,6 +2,18 @@
 
 require_once(dirname(__FILE__) . "/config.inc.php");
 
+function encode_str_callback($parts)
+{
+	return $parts[1] . '="' . rawurlencode($parts[2]) . '"';
+}
+
+function encode_str($str)
+{
+	return preg_replace_callback('/([a-zA-Z]+)\s*=\s*"(.*?)"/', 'encode_str_callback', $str);
+}
+
+
+
 // save XML page
 if( isset($_POST["lines"]) )
 {
@@ -34,6 +46,8 @@ if( isset($_POST["lines"]) )
 		$lines= stripcslashes($lines);
 	}
 
+	$lines= encode_str($lines);
+
 	header('Content-Type: text/xml');
 	echo '<?xml version="1.0" ?>';
 	echo '<root>';
@@ -46,7 +60,13 @@ if( isset($_POST["lines"]) )
 	}
 	else
 	{
-		echo '<return ret="err" msg="Unable to save XML file" />';
+		echo '<return ret="err" msg="Unable to save XML file"/>';
+		$file= fopen("faild_xml.txt", "w");
+		if( $file )
+		{
+			fputs($file, $lines);
+			fclose($file);
+		}
 	}
 
 	echo '</root>';

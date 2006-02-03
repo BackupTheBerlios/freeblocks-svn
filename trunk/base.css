@@ -1,5 +1,31 @@
 
 
 
+.float_left {
+	float:left;
+}
+
+.float_right {
+	float: right;
+}
+
+.end_block {
+	display: block;
+	visibility: hidden;
+	clear: both;
+	margin-top: 10%;
+}
+
+/******************/
+/*** COMPONENTS ***/
+
+.board_component {
+	border: 1px solid black;
+}
+
+.text_component {
+	padding: 5px;
+}
+
 /******************/
 

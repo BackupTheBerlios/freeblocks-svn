@@ -108,6 +108,10 @@ foreach( $storage->getComponentsData() as $comp_data )
 				$y= $val;
 				break;
 
+			case 'width':
+				$width= $val;
+				break;
+
 			case 'parent':
 				$parent= strtoupper($val);
 				break;
@@ -125,6 +129,36 @@ foreach( $storage->getComponentsData() as $comp_data )
 
 	switch( $c->getPropertyValue('position') )
 	{
+	case 'fixed':
+		if( $edit_mode )
+		{
+			$xtpl->concat('ADDED_JS', "
+				$('{$comp_id}')._drag_obj= new Draggable('{$comp_id}', {snap: 10});
+			");
+		}
+
+
+
+		if( strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false )
+		{
+			$c->setCSSStyle('position', 'absolute');
+			$c->setCSSStyle('left', "expression( {$x} + ( ignoreMe2 = document.body.scrollLeft ) + 'px' )");
+			$c->setCSSStyle('top', "expression( {$y} + ( ignoreMe = document.body.scrollTop ) + 'px' )");
+		}
+		else
+		{
+			$c->setCSSStyle('position', 'fixed');
+			$c->setCSSStyle('left', $x);
+			$c->setCSSStyle('top', $y);
+		}
+
+		$c->setCSSStyle('z-index', 500);
+		$c->setCSSStyle('width', $width);
+
+		$xtpl->concat('ADDED_CSS', $c->getCSS());
+		$xtpl->concat('BODY', $c->renderComponent());
+		break;
+
 	case 'absolute':
 
 		if( $edit_mode )
@@ -177,7 +211,7 @@ foreach( $storage->getComponentsData() as $comp_data )
 
 		foreach($c->getProperties() as $name => $prop)
 		{
-			$script.= "tmp['{$name}']= unescape('{$prop->value}');\n";
+			$script.= "tmp['{$name}']= unescape(\"{$prop->value}\");\n";
 		}
 
 		// if the component has children
@@ -365,16 +399,12 @@ if( $edit_mode )
 			mode 		: "textareas",
 			theme 		: "advanced",
 			language	: "en",
-			plugins 	: "advimage",
+			plugins 	: "advimage,fullscreen",
 			external_image_list_url : "img_list.js.php",
-			advimage_styles : "float_left;float_right",
+			advimage_styles : "float left=float_left;float right=float_right",
 			theme_advanced_disable : "formatselect"
 		});
 
-		function myCustomFileBrowser(field_name, url, type, win) {
-			// Do custom browser logic
-			win.document.forms[0].elements[field_name].value = "my browser value";
-		}
 	');
 
 	// open template for properties
@@ -539,7 +569,7 @@ if( $edit_mode )
 
 			case 'fixed':
 			case 'absolute':
-				if( curr_pos != 'absolute' )
+				if( curr_pos != this.position )
 				{
 					// remove from current container
 					this._div.parentNode.removeChild(this._div);

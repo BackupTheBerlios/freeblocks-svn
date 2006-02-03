@@ -47,8 +47,7 @@ var rules= {
 						if( (typeof obj[property] != "function") && (property.charAt(0) != '_') &&
 							(property != "x") && (property != "y") )
 						{
-							//$('middle_container').innerHTML+= property + "<br/>";
-							data+= property + '="' + escape(obj[property]) + '" ';
+							data+= property + '="' + escape(obj[property].replace(/"/g, "'")) + '" ';
 						}
 					}
 
@@ -98,6 +97,8 @@ var rules= {
 					add_display_msg(xml.getAttribute('msg'), (xml.getAttribute('ret') == "ok")?'lightgreen':'red');
 					$('save_page').disabled= true;
 					hideLoading();
+
+					//$('middle_container').textContent= req.responseText;
 				},
 
 				onFailure: function(){ alert('failed'); }

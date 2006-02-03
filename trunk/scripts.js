@@ -6,10 +6,12 @@ function component_clicked(target_div)
 {
 	if( target_div.obj != lastselected )
 	{
+		displayloading();
+
 		if( lastselected != null )
 		{
 			//lastselected._div.className= "component";
-			Element.addClassName(lastselected._div, 'component_selected');
+			Element.removeClassName(lastselected._div, 'component_selected');
 			lastselected.savePropertyPanel();
 			lastselected.updateContent();
 		}
@@ -22,6 +24,8 @@ function component_clicked(target_div)
 		//lastselected._div.className= "component component_selected";
 		Element.addClassName(lastselected._div, 'component_selected');
 		$('disp_comp_id').innerHTML= lastselected._div.id;
+
+		hideLoading();
 	}
 }
 

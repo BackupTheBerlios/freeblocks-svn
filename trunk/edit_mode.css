@@ -10,6 +10,14 @@
 .component {
 	cursor: move;
 	min-height: 20px;
+
+	background-color: lightgreen;
+
+	border: 1px dashed red;
+}
+
+.component_selected {
+	border: 2px dashed red;
 }
 
 #debug {
@@ -84,7 +92,7 @@
 */
 
 #toolbar {
-	position: absolute;
+	position: fixed;
 	margin-left: 5%;
 	margin-right: 5%;
 	width: 90%;
@@ -140,7 +148,7 @@
 /* Properties */
 
 #properties_panel {
-	position: absolute;
+	position: fixed;
 	margin: 0px;
 	padding: 0px;
 	padding-bottom: 5px;
