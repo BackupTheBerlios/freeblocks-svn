@@ -5,7 +5,16 @@ StaticText= Class.create();
 StaticText.prototype= Object.extend(new Component(), {
 
 	updateContent: function(){
-		this._div.getElementsByTagName('div').item(0).innerHTML= this.text;
+		var content_div= Element.childrenWithClassName(this._div, 'content')[0];
+
+		if( this.preview == 'true' )
+		{
+			content_div.innerHTML= this.text;
+		}
+		else
+		{
+			this.showNoPreviewContent(content_div);
+		}
 		this._div.style.width= this.width || 'auto';
 	}
 });
