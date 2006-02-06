@@ -1,6 +1,6 @@
 <!-- BEGIN: main -->
 <div id="{ID}" class="component text_component">
 	<div class="content">{CONTENT}</div>
-	<hr class="end_block"></hr>
+<!--	<hr class="end_block"></hr> -->
 </div>
 <!-- END: main -->

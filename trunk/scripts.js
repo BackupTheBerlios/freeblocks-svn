@@ -1,6 +1,11 @@
 
 var lastselected= null;
 
+function display_properties(type)
+{
+	hidePropertyPanels();
+	$('panel_' + type).style.display= "block";
+}
 
 function component_clicked(target_div)
 {
@@ -16,8 +21,7 @@ function component_clicked(target_div)
 			lastselected.updateContent();
 		}
 
-		hidePropertyPanels();
-		$('panel_' + target_div.obj.type).style.display= "block";
+		display_properties(target_div.obj.type);
 
 		lastselected= target_div.obj;
 		lastselected.fillPropertyPanel();

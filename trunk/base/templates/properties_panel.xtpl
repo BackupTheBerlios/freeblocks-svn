@@ -5,11 +5,17 @@
 
 		<!-- BEGIN: component -->
 		<div id="panel_{COMP}" class="prop_panel">
-			<div class="category">
-				<div class="title">{COMP}</div>
+
+			<!-- BEGIN: category -->
+			<div class="{CLASS}">
+				<div class="title">{TITLE}</div>
 
 				<!-- BEGIN: item -->
 				<div class="item">
+
+					<!-- BEGIN: add_button -->
+					<a href="" class="add_button">+</a>
+					<!-- END: add_button -->
 
 					<!-- BEGIN: text -->
 					<label for="{ID}">{DISPLAY_NAME}</label>
@@ -62,10 +68,12 @@
 				<!-- END: item -->
 
 			</div>
+			<!-- END: category -->
+
 		</div>
 		<!-- END: component -->
 
-		<input id="apply_properties" type="button" value="Apply Items Properties">
+		<input id="apply_properties" type="button" value="Apply">
 		<input id="delete_component" type="button" value="Remove component">
 	</div>
 </div>

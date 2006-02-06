@@ -1,6 +1,6 @@
 
 
-
+/*
 Draggable.prototype.draw= function(point) {
 	var pos = Position.cumulativeOffset(this.element);
 	var d= this.currentDelta();
@@ -49,6 +49,7 @@ Draggable.prototype.draw= function(point) {
 		style.visibility = ""; // fix gecko rendering
 	}
 }
+*/
 
 Effect.Center = function(element)
 {

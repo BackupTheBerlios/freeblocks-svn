@@ -23,6 +23,7 @@ class Property
 abstract class BaseComponent
 {
 	private $_properties= array();
+	protected $_properties_array= array();
 
 	// type					// params
 	const TYPE_HIDDEN= 0;
@@ -71,6 +72,20 @@ abstract class BaseComponent
 		return isset($this->_properties[$name]);
 	}
 
+	/**
+	 * add a property array, they are properties which can contain 0 or more
+	 * values
+	 *
+	 * @param string $tag_name
+	 * @param array $properties
+	 */
+	public function addPropertyArray($tag_name, $properties)
+	{
+		$this->_properties_array[$tag_name]= $properties;
+	}
+
+
+
 
 
 	// getters
@@ -89,6 +104,11 @@ abstract class BaseComponent
 		}
 
 		return $ret;
+	}
+
+	public function getPropertiesArray()
+	{
+		return $this->_properties_array;
 	}
 
 
@@ -115,6 +135,7 @@ abstract class Component extends BaseComponent
 	protected $_xml_subnodes= array();
 	protected $_css_style= array();
 
+
 	/**
 	 * template
 	 *
@@ -124,9 +145,11 @@ abstract class Component extends BaseComponent
 
 	public function __construct()
 	{
-		$filename= dirname(__FILE__) . '/../components/' . get_class($this) . ".xtpl";
+		$myclass= get_class($this);
+		$filename= dirname(__FILE__) . "/../components/{$myclass}/{$myclass}.xtpl";
 		$this->xtpl= new XTemplate( $filename );
 
+		$this->addProperty('preview', 'Show preview', Component::TYPE_BOOL, 'true');
 		$this->addProperty('width', 'Width', Component::TYPE_TEXT, 'auto');
 		$this->addProperty('position', 'Positionning', Component::TYPE_CHOICE, 'Container', array(
 			'values' => array(

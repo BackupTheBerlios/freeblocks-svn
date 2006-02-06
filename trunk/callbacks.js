@@ -1,5 +1,24 @@
 var rules= {
 
+	'.add_button': function(el){
+		el.onclick= function(e){
+			return false;
+		}
+	},
+
+	// disable links in components
+	'.component A': function(el){
+		el.onclick= function(e){
+			return false;
+		}
+	},
+
+	'#show_properties': function(el){
+		el.onchange= function(e){
+			$('properties_panel').style.visibility= $('show_properties').checked?'visible':'hidden';
+		}
+	},
+
 	'#apply_properties': function(el){
 		el.onclick= function(e){
 			lastselected.savePropertyPanel();
@@ -16,6 +35,15 @@ var rules= {
 				form.removeChild( lastselected._div );
 				hidePropertyPanels();
 			}
+		}
+	},
+
+////////////////////////
+	// bottom bar
+
+	'#page_properties': function(el){
+		el.onclick= function(e){
+			display_properties('Page');
 		}
 	},
 

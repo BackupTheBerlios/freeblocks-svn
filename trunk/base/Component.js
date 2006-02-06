@@ -15,6 +15,16 @@ Component.prototype= {
 		{
 			this.parent= this._div.parentNode.id;
 		}
+	},
+
+	showNoPreviewContent: function(el){
+		var text= '';
+
+		text+= '[Content hidden]<br/>';
+		text+= 'type: ' + this.type + '<br/>';
+		text+= 'id: ' + this._div.id + '<br/>';
+
+		el.innerHTML= text;
 	}
 };
 

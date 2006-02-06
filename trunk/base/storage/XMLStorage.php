@@ -103,15 +103,20 @@ class XMLStorage extends Storage
 					}
 				}
 
-				// only continue if page exists
+				$new_page_node= $xml->importNode($page_node, true);
+
+				// if page exists
 				if( $old_page_node !== null )
 				{
-					$new_page_node= $xml->importNode($page_node, true);
 					$config_node->replaceChild($new_page_node, $old_page_node);
-
-					// save new xml to file
-					$xml->save($filename);
 				}
+				else
+				{
+					$config_node->appendChild($new_page_node);
+				}
+
+				// save new xml to file
+				$xml->save($filename);
 			}
 
 		}

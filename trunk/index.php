@@ -52,11 +52,11 @@ if( $dir )
 {
 	while(($fname= readdir($dir)) !== false)
 	{
-		if( !in_array($fname, array(".", "..")) && ereg("([^.]+)\.php", $fname, $parts) )
+		if( ($fname[0] != '.') && is_dir('components/' . $fname) )
 		{
 			// load class definition
-			require_once("components/" . $fname);
-			$available_components[]= $parts[1];
+			require_once("components/{$fname}/{$fname}.php");
+			$available_components[]= $fname;
 		}
 	}
 }
@@ -84,10 +84,10 @@ if( !file_exists($filename) )
 
 $xtpl= new XTemplate($filename);
 
+// create all the components from loaded data
 foreach( $storage->getComponentsData() as $comp_data )
 {
 	$class_name= $comp_data['type'];
-	require_once( dirname(__FILE__) . '/components/' . $class_name . '.php' );
 	$c= new $class_name();
 
 	unset($x, $y, $parent, $comp_id);
@@ -127,60 +127,6 @@ foreach( $storage->getComponentsData() as $comp_data )
 
 	$page->addComponent($c);
 
-	switch( $c->getPropertyValue('position') )
-	{
-	case 'fixed':
-		if( $edit_mode )
-		{
-			$xtpl->concat('ADDED_JS', "
-				$('{$comp_id}')._drag_obj= new Draggable('{$comp_id}', {snap: 10});
-			");
-		}
-
-
-
-		if( strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false )
-		{
-			$c->setCSSStyle('position', 'absolute');
-			$c->setCSSStyle('left', "expression( {$x} + ( ignoreMe2 = document.body.scrollLeft ) + 'px' )");
-			$c->setCSSStyle('top', "expression( {$y} + ( ignoreMe = document.body.scrollTop ) + 'px' )");
-		}
-		else
-		{
-			$c->setCSSStyle('position', 'fixed');
-			$c->setCSSStyle('left', $x);
-			$c->setCSSStyle('top', $y);
-		}
-
-		$c->setCSSStyle('z-index', 500);
-		$c->setCSSStyle('width', $width);
-
-		$xtpl->concat('ADDED_CSS', $c->getCSS());
-		$xtpl->concat('BODY', $c->renderComponent());
-		break;
-
-	case 'absolute':
-
-		if( $edit_mode )
-		{
-			$xtpl->concat('ADDED_JS', "
-				$('{$comp_id}')._drag_obj= new Draggable('{$comp_id}', {snap: 10});
-			");
-		}
-
-		$c->setCSSStyle('position', 'absolute');
-		$c->setCSSStyle('left', $x);
-		$c->setCSSStyle('top', $y);
-		$c->setCSSStyle('z-index', 500);
-
-		$xtpl->concat('ADDED_CSS', $c->getCSS());
-		$xtpl->concat('BODY', $c->renderComponent());
-		break;
-
-	case 'container':
-		$xtpl->concat($parent, $c->renderComponent());
-		break;
-	}
 
 	$comp_class= get_class($c);
 
@@ -194,14 +140,13 @@ foreach( $storage->getComponentsData() as $comp_data )
 			tmp._div.style.top= '{$y}';
 			tmp._div.onclick= function(){ component_clicked(this) };
 
-			tmp._drag_obj= tmp._div._drag_obj;
-
 			handle= document.createElement('<div>');
 			handle.className= 'handle';
 
-			Element.setOpacity(handle, 0.1);
+			Element.setOpacity(handle, 0.7);
 
-			tmp._div.appendChild(handle);
+			//tmp._div.appendChild(handle);
+			tmp._div.insertBefore(handle, tmp._div.firstChild);
 
 			if( tmp.updateContent == null )
 			{
@@ -233,10 +178,66 @@ foreach( $storage->getComponentsData() as $comp_data )
 			}
 
 		}
+
+		$script.= "tmp.updateContent();";
+
+		$xtpl->concat('ADDED_JS', $script);
 	}
 
+	switch( $c->getPropertyValue('position') )
+	{
+	case 'fixed':
+		if( $edit_mode )
+		{
+			$xtpl->concat('ADDED_JS', "
+				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {handle: 'handle', snap: 10});
+			");
+		}
 
-	$xtpl->concat('ADDED_JS', $script);
+
+
+		if( strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false )
+		{
+			$c->setCSSStyle('position', 'absolute');
+			$c->setCSSStyle('left', "expression( {$x} + ( ignoreMe2 = document.body.scrollLeft ) + 'px' )");
+			$c->setCSSStyle('top', "expression( {$y} + ( ignoreMe = document.body.scrollTop ) + 'px' )");
+		}
+		else
+		{
+			$c->setCSSStyle('position', 'fixed');
+			$c->setCSSStyle('left', $x);
+			$c->setCSSStyle('top', $y);
+		}
+
+		$c->setCSSStyle('z-index', 500);
+		$c->setCSSStyle('width', $width);
+
+		$xtpl->concat('ADDED_CSS', $c->getCSS());
+		$xtpl->concat('BODY', $c->renderComponent());
+		break;
+
+	case 'absolute':
+
+		if( $edit_mode )
+		{
+			$xtpl->concat('ADDED_JS', "
+				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {snap: 10, handle: 'handle'});
+			");
+		}
+
+		$c->setCSSStyle('position', 'absolute');
+		$c->setCSSStyle('left', $x);
+		$c->setCSSStyle('top', $y);
+		$c->setCSSStyle('z-index', 500);
+
+		$xtpl->concat('ADDED_CSS', $c->getCSS());
+		$xtpl->concat('BODY', $c->renderComponent());
+		break;
+
+	case 'container':
+		$xtpl->concat($parent, $c->renderComponent());
+		break;
+	}
 }
 
 
@@ -258,19 +259,19 @@ $xtpl->concat('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
 if( $edit_mode )
 {
 	$xtpl->concat('HEAD', '<link rel="stylesheet" href="edit_mode.css"></link>' . "\n");
-}
 
-foreach($available_components as $comp)
-{
-	$xtpl->concat('HEAD', "<script src=\"components/{$comp}.js\" type=\"text/javascript\"></script>\n");
-}
 
-if( $edit_mode )
-{
+	foreach($available_components as $comp)
+	{
+		$xtpl->concat('HEAD', "<script src=\"components/{$comp}/{$comp}.js\" type=\"text/javascript\"></script>\n");
+	}
+
 	$xtpl->concat('TITLE', ' (Edit Mode)');
 	$xtpl->concat('ADDED_JS', "
 		var drag_prop= new Draggable('properties_panel',
 			{handle: 'title',
+			 starteffect: null,
+			 endeffect: null,
 			 change: function(obj){
 			 	var now= new Date();
 				setCookie('prop_x', obj.element.style.left, new Date(now.getTime() +3600 * 15 * 1000));
@@ -296,6 +297,7 @@ if( $edit_mode )
 			for(var i=0; i< containers.length; i++){
 				Sortable.create(containers[i], {
 					tag: 'div',
+					handle: 'handle',
 					hoverclass: 'hover',
 					constraint: false,
 					dropOnEmpty: true,
@@ -310,6 +312,8 @@ if( $edit_mode )
 // build page bar
 	$xtpl->concat('BODY', '
 	<div id="toolbar">
+		<div id="loading_indicator">Loading...
+		</div>
 
 		<div class="toolbar_item">
 			<label for="page_name">Page name:</label>
@@ -321,15 +325,21 @@ if( $edit_mode )
 			<input id="page_template" type="text" value="' . $page->getPropertyValue('template') . '" disabled="true"/>
 		</div>
 
-		<div class="toolbar_item">
+		<div class="toolbar_button">
 			<input id="save_page" type="button" value="Save Page" disabled="true">
 		</div>
 
-		<div class="toolbar_item">
+		<div class="toolbar_button">
+			<input id="page_properties" type="button" value="Page properties">
+		</div>
+
+		<div class="toolbar_button">
 			<input id="view_xml" onclick="window.open(\'\')" type="button" value="View saved XML">
 		</div>
 
-		<div id="loading_indicator">Loading...
+		<div id="show_properties_div">
+			<input id="show_properties" type="checkbox" checked="1"/>
+			<label for="show_properties">Show properties</label>
 		</div>
 	</div>
 	');
@@ -361,7 +371,7 @@ if( $edit_mode )
 				handle= document.createElement('<div>');
 				handle.className= 'handle';
 
-				Element.setOpacity(handle, 0.1);
+				Element.setOpacity(handle, 0.7);
 
 				tmp._div.appendChild(handle);
 
@@ -378,7 +388,8 @@ if( $edit_mode )
 				tmp['id']= new_comp.id;
 
 				body.appendChild(tmp._div);
-				tmp._drag_obj= new Draggable(tmp._div.id);
+				tmp._drag_obj= new Draggable(tmp._div.id, {handle: 'handle'});
+				Effect.Center(new_comp);
 				Element.show(new_comp);
 			}
 		";
@@ -402,7 +413,8 @@ if( $edit_mode )
 			plugins 	: "advimage,fullscreen",
 			external_image_list_url : "img_list.js.php",
 			advimage_styles : "float left=float_left;float right=float_right",
-			theme_advanced_disable : "formatselect"
+			theme_advanced_disable : "formatselect",
+			theme_advanced_resizing : true
 		});
 
 	');
@@ -410,10 +422,11 @@ if( $edit_mode )
 	// open template for properties
 	$prop_xtpl= new XTemplate('base/templates/properties_panel.xtpl');
 
-	foreach($available_components  as $comp)
+	foreach( array_merge($available_components, array('Page'))  as $comp)
 	{
 		$tmp= new $comp();
 
+		// add properties
 		foreach($tmp->getProperties() as $prop)
 		{
 
@@ -428,12 +441,12 @@ if( $edit_mode )
 
 				if( !isset($prop->params['lines']) || ($prop->params['lines'] == 1) )
 				{
-					$prop_xtpl->parse('main.component.item.text');
+					$prop_xtpl->parse('main.component.category.item.text');
 				}
 				else
 				{
 					$prop_xtpl-> assign('LINES', $prop->params['lines']);
-					$prop_xtpl->parse('main.component.item.textarea');
+					$prop_xtpl->parse('main.component.category.item.textarea');
 				}
 				break;
 
@@ -443,7 +456,7 @@ if( $edit_mode )
 					$prop_xtpl->assign('PARAM_' . strtoupper($name), $val);
 				}
 
-				$prop_xtpl->parse('main.component.item.slider');
+				$prop_xtpl->parse('main.component.category.item.slider');
 				break;
 
 			case BaseComponent::TYPE_CHOICE:
@@ -452,24 +465,91 @@ if( $edit_mode )
 				{
 					$prop_xtpl->assign('VALUE', $val);
 					$prop_xtpl->assign('LABEL', $label);
-					$prop_xtpl->parse('main.component.item.choice.option');
+					$prop_xtpl->parse('main.component.category.item.choice.option');
 				}
 
-				$prop_xtpl->parse('main.component.item.choice');
+				$prop_xtpl->parse('main.component.category.item.choice');
 				break;
 
 			case BaseComponent::TYPE_BOOL:
-				$content.= "<label for=\"{$comp}_{$prop->name}\">{$prop->dispname}</label>
-							<input id=\"{$comp}_{$prop->name}\" type=\"checkbox\"/>";
+				$prop_xtpl->parse('main.component.category.item.bool');
 				break;
 
 
 			}
 
-			$prop_xtpl->parse('main.component.item');
+			$prop_xtpl->parse('main.component.category.item');
 		}
 
+		$prop_xtpl->assign('TITLE', $comp);
 		$prop_xtpl->assign('COMP', $comp);
+		$prop_xtpl->assign('CLASS', 'category');
+		$prop_xtpl->parse('main.component.category');
+
+
+		/////////////////////////////
+		// add array of properties
+		foreach($tmp->getPropertiesArray() as $name => $prop_arr)
+		{
+			foreach($prop_arr as $prop)
+			{
+				$prop_xtpl->assign('ID', $comp . '_' . $name . '_' . $prop->name . '-0');
+				$prop_xtpl->assign('DISPLAY_NAME', $prop->dispname);
+
+				switch($prop->type)
+				{
+
+				case BaseComponent::TYPE_TEXT:
+
+					if( !isset($prop->params['lines']) || ($prop->params['lines'] == 1) )
+					{
+						$prop_xtpl->parse('main.component.category.item.text');
+					}
+					else
+					{
+						$prop_xtpl-> assign('LINES', $prop->params['lines']);
+						$prop_xtpl->parse('main.component.category.item.textarea');
+					}
+					break;
+
+				case BaseComponent::TYPE_SLIDER:
+					foreach( $prop->params as $name => $val )
+					{
+						$prop_xtpl->assign('PARAM_' . strtoupper($name), $val);
+					}
+
+					$prop_xtpl->parse('main.component.category.item.slider');
+					break;
+
+				case BaseComponent::TYPE_CHOICE:
+
+					foreach($prop->params['values'] as $val => $label)
+					{
+						$prop_xtpl->assign('VALUE', $val);
+						$prop_xtpl->assign('LABEL', $label);
+						$prop_xtpl->parse('main.component.category.item.choice.option');
+					}
+
+					$prop_xtpl->parse('main.component.category.item.choice');
+					break;
+
+				case BaseComponent::TYPE_BOOL:
+					$prop_xtpl->parse('main.component.category.item.bool');
+					break;
+
+
+				}
+
+				$prop_xtpl->parse('main.component.category.item');
+			}
+			$prop_xtpl->parse('main.component.category.item');
+
+
+			$prop_xtpl->assign('TITLE', $name);
+			$prop_xtpl->assign('CLASS', 'multiprop');
+			$prop_xtpl->parse('main.component.category');
+		}
+
 		$prop_xtpl->parse('main.component');
 	}
 
@@ -479,7 +559,7 @@ if( $edit_mode )
 	$xtpl->concat('BODY', trim($prop_xtpl->text('main')));
 
 	$script= 'function hidePropertyPanels(){';
-	foreach($available_components as $comp)
+	foreach(array_merge($available_components, array('Page')) as $comp)
 	{
 		$script.= "$('panel_{$comp}').style.display= \"none\";";
 	}
@@ -544,6 +624,51 @@ if( $edit_mode )
 
 		}
 
+		foreach($tmp->getPropertiesArray() as $name => $prop_arr)
+		{
+			foreach($prop_arr as $prop)
+			{
+				$script_fillProperty.= "
+					for(var i= 0; i< this._children.length; i++)
+					{
+						var tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
+						if( tmp == null )
+						{
+							tmp= $('{$comp}_{$name}_{$prop->name}-' + (i-1)).parentNode.parentNode;
+							var new_node= tmp.cloneNode(true);
+							tmp.parentNode.appendChild(new_node);
+
+							// now give correct id to the new fields
+							for(var j= 0; j< new_node.childNodes.length; j++)
+							{
+								for(var k= 0; k< new_node.childNodes[j].childNodes.length; k++)
+								{
+									var child= new_node.childNodes[j].childNodes[k];
+									if( child.id )
+									{
+										var parts= child.id.split('-');
+										child.id= parts[0] + '-' + (parseInt(parts[1])+1);
+									}
+								}
+							}
+
+							tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
+						}
+
+						tmp.value= this._children[i].{$prop->name};
+					}
+				";
+
+				$script_saveProperty.= "
+					for(var i= 0; i< this._children.length; i++)
+					{
+						var tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
+						this._children[i].{$prop->name}= tmp.value;
+					}
+				";
+			}
+		}
+
 		$script_fillProperty.= "};";
 
 		// check if position type changed
@@ -576,12 +701,12 @@ if( $edit_mode )
 
 					// then add it as a child of body
 					var body= document.getElementsByTagName('body').item(0);
-					this._div.style.position= 'absolute';
+					this._div.style.position= this.position;
 					this._div.style.left= '0';
 					this._div.style.top= '0';
 
 					body.appendChild(this._div);
-					this._drag_obj= new Draggable(this._div.id, {snap: 10});
+					this._drag_obj= new Draggable(this._div.id, {snap: 10, handle: 'handle'});
 				}
 				break;
 			}

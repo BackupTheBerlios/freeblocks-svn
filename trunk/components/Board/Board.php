@@ -1,7 +1,7 @@
 
 <?php
 
-require_once( dirname(__FILE__) . "/../base/Component.php");
+require_once( dirname(__FILE__) . "/../../base/Component.php");
 
 
 class Board extends Component

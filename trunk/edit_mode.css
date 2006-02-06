@@ -1,4 +1,13 @@
 
+/* global styles*/
+
+INPUT[type=button] {
+	border: 1px solid black;
+}
+
+
+
+
 .container, .component {
 	border: 1px solid black;
 }
@@ -7,17 +16,28 @@
 	min-height: 10px;
 }
 
+.hover {
+	border: 2px solid green;
+}
+
 .component {
-	cursor: move;
 	min-height: 20px;
+	background-color: lightgray;
+	border: 1px solid gray;
+}
 
-	background-color: lightgreen;
-
-	border: 1px dashed red;
+.component .handle {
+	cursor: move;
+	background: url('base/img/move.gif') no-repeat center center;
+	position: absolute;
+	top: -10px;
+	left: -10px;
+	width: 20px;
+	height: 20px;
 }
 
 .component_selected {
-	border: 2px dashed red;
+	outline: 2px dashed red;
 }
 
 #debug {
@@ -55,6 +75,7 @@
 
 #alert_container {
 	position: absolute;
+	overflow: hidden;
 	z-index: 2000;
 	top: 0;
 	left: 0;
@@ -63,7 +84,7 @@
 
 .error_display {
 	float: left;
-	width: 100%;
+	width: 99%;
 	height: 20px;
 	border: 1px solid black;
 	border-top: none;
@@ -100,9 +121,12 @@
 
 	padding: 0;
 	border: 2px solid black;
-	height: 30px;
-	bottom: 20px;
+	border-bottom: none;
+	height: 4em;
+	bottom: 0px;
 	z-index: 100;
+
+	vertical-align: middle;
 }
 
 #toolbar .toolbar_item {
@@ -114,14 +138,26 @@
 	margin-left: 10px;
 }
 
+#toolbar .toolbar_button {
+
+}
+
+#toolbar .toolbar_item label{
+	font-size: 70%;
+	display: block;
+}
+
+#show_properties_div {
+	position: static;
+}
+
 /**************/
 /* Components */
 
 #components_panel {
 	position: fixed;
 	left: 0;
-	top: 10%;
-	height: 80%;
+	bottom: 0;
 	width: 30px;
 
 	border: 1px solid black;
@@ -129,6 +165,8 @@
 
 	margin: 0;
 	padding: 0;
+
+	z-index: 1000;
 }
 
 #components_panel .item {
@@ -193,6 +231,14 @@
 	display: none;
 }
 
+#properties_panel > .body > INPUT {
+	margin-top: 10px;
+}
+
+#properties_panel .prop_panel {
+	margin-bottom: 10px;
+}
+
 #properties_panel  .category {
 /*
 	border: 1px solid black;
@@ -245,9 +291,14 @@
 
 #properties_panel .category .item INPUT, #properties_panel .category .item SELECT {
 	margin-left: 5px;
-	border: 1px solid black;
+	margin-right: auto;
 	padding: 1px;
 	padding-left: 3px;
+	width: 50%;
+}
+
+#properties_panel .category .item INPUT[type=checkbox] {
+	width: auto;
 }
 
 .slider{
@@ -264,6 +315,45 @@
 	height: 10px;
 	background-color:#f00;
 }
+
+/**************/
+/* prop array */
+
+#properties_panel .multiprop {
+	outline: 1px dashed black;
+	margin-top: 20px;
+}
+
+#properties_panel .multiprop .title {
+	display: none;
+}
+
+#properties_panel .multiprop + .multiprop {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+#properties_panel .multiprop .item {
+	display: inline;
+	float: left;
+	width: 50%;
+}
+
+#properties_panel .multiprop .item .add_button{
+	border: 1px solid black;
+}
+
+#properties_panel .multiprop .item INPUT[type=text] {
+	width: 90%;
+}
+
+#properties_panel .multiprop .item LABEL{
+	display: block;
+	font-size: 70%;
+}
+
+
+
 
 /**************/
 
