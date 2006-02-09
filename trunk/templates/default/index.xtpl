@@ -1,7 +1,9 @@
 <!-- BEGIN: main -->
+
 <html>
 <head>
 	<title>{TITLE}</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
 	<link rel="stylesheet" href="{TEMPLATE_DIR}/style.css"></link>
 	{HEAD}
 	<style type="text/css">
@@ -20,6 +22,10 @@
 
 <div id="middle_container" class="container">
 	{MIDDLE_CONTAINER}
+</div>
+
+<div id="footer_container" class="container">
+	{FOOTER_CONTAINER}
 </div>
 
 

@@ -190,7 +190,7 @@ foreach( $storage->getComponentsData() as $comp_data )
 		if( $edit_mode )
 		{
 			$xtpl->concat('ADDED_JS', "
-				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {handle: 'handle', snap: 10});
+				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {handle: 'handle', snap: {$CONF['dragdrop_snap']}});
 			");
 		}
 
@@ -205,12 +205,12 @@ foreach( $storage->getComponentsData() as $comp_data )
 		else
 		{
 			$c->setCSSStyle('position', 'fixed');
-			$c->setCSSStyle('left', $x);
-			$c->setCSSStyle('top', $y);
+			$c->setCSSStyle('left', $x . 'px');
+			$c->setCSSStyle('top', $y . 'px');
 		}
 
 		$c->setCSSStyle('z-index', 500);
-		$c->setCSSStyle('width', $width);
+		$c->setCSSStyle('width', $width . 'px');
 
 		$xtpl->concat('ADDED_CSS', $c->getCSS());
 		$xtpl->concat('BODY', $c->renderComponent());
@@ -221,7 +221,7 @@ foreach( $storage->getComponentsData() as $comp_data )
 		if( $edit_mode )
 		{
 			$xtpl->concat('ADDED_JS', "
-				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {snap: 10, handle: 'handle'});
+				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {snap: {$CONF['dragdrop_snap']}, handle: 'handle'});
 			");
 		}
 
@@ -251,7 +251,7 @@ $xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type
 $xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
-$xtpl->concat('HEAD', '<script language="javascript" type="text/javascript" src="tinymce/jscripts/tiny_mce/tiny_mce.js"></script>' . "\n");
+$xtpl->concat('HEAD', '<script type="text/javascript" src="tinymce/jscripts/tiny_mce/tiny_mce.js"></script>' . "\n");
 
 
 $xtpl->concat('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
@@ -315,14 +315,9 @@ if( $edit_mode )
 		<div id="loading_indicator">Loading...
 		</div>
 
-		<div class="toolbar_item">
-			<label for="page_name">Page name:</label>
-			<input id="page_name" type="text" value="' . $_GET['page'] . '" disabled="true"/>
-		</div>
-
-		<div class="toolbar_item">
-			<label for="page_template">Page template:</label>
-			<input id="page_template" type="text" value="' . $page->getPropertyValue('template') . '" disabled="true"/>
+		<div class="toolbar_button">
+			<input id="show_properties" type="checkbox" checked="1"/>
+			<label for="show_properties">Show properties</label>
 		</div>
 
 		<div class="toolbar_button">
@@ -335,11 +330,6 @@ if( $edit_mode )
 
 		<div class="toolbar_button">
 			<input id="view_xml" onclick="window.open(\'\')" type="button" value="View saved XML">
-		</div>
-
-		<div id="show_properties_div">
-			<input id="show_properties" type="checkbox" checked="1"/>
-			<label for="show_properties">Show properties</label>
 		</div>
 	</div>
 	');
@@ -414,7 +404,10 @@ if( $edit_mode )
 			external_image_list_url : "img_list.js.php",
 			advimage_styles : "float left=float_left;float right=float_right",
 			theme_advanced_disable : "formatselect",
-			theme_advanced_resizing : true
+			theme_advanced_statusbar_location: "bottom",
+			theme_advanced_buttons3_add : "fullscreen",
+			inline_styles : true,
+			content_css : "base.css"
 		});
 
 	');
@@ -548,6 +541,9 @@ if( $edit_mode )
 			$prop_xtpl->assign('TITLE', $name);
 			$prop_xtpl->assign('CLASS', 'multiprop');
 			$prop_xtpl->parse('main.component.category');
+
+			$prop_xtpl->assign('CLASS', 'multiprop multiprop_' . $comp . '_' . $name);
+			$prop_xtpl->parse('main.component.category');
 		}
 
 		$prop_xtpl->parse('main.component');
@@ -574,7 +570,7 @@ if( $edit_mode )
 
 	$script_fillProperty= '';
 	$script_saveProperty= '';
-	foreach($available_components as $comp)
+	foreach( array_merge($available_components, array('Page')) as $comp)
 	{
 		$tmp= new $comp();
 
@@ -600,7 +596,6 @@ if( $edit_mode )
 					tinyMCE.updateContent('{$comp}_{$prop->name}');
 				";
 				$script_saveProperty.= "
-					tinyMCE.triggerSave();
 					this.{$prop->name}= $('{$comp}_{$prop->name}').value;
 				";
 				break;
@@ -636,7 +631,8 @@ if( $edit_mode )
 						{
 							tmp= $('{$comp}_{$name}_{$prop->name}-' + (i-1)).parentNode.parentNode;
 							var new_node= tmp.cloneNode(true);
-							tmp.parentNode.appendChild(new_node);
+							var parent= document.getElementsByClassName('multiprop_{$comp}_{$name}')[0];
+							parent.appendChild(new_node);
 
 							// now give correct id to the new fields
 							for(var j= 0; j< new_node.childNodes.length; j++)
@@ -671,46 +667,50 @@ if( $edit_mode )
 
 		$script_fillProperty.= "};";
 
-		// check if position type changed
-		$script_saveProperty.= "
-			var curr_pos= Element.getStyle(this._div, 'position');
+		if( $comp != 'Page' )
+		{
+			// check if position type changed
+			$script_saveProperty.= "
+				var curr_pos= Element.getStyle(this._div, 'position');
 
-			switch( this.position )
-			{
-			case 'container':
-				if( curr_pos != 'relative' )
+				switch( this.position )
 				{
-					// find first container and put the component in it
-					var cont= document.getElementsByClassName('container')[0];
-					this._div.style.position= 'relative';
-					this._div.style.left= '0';
-					this._div.style.top= '0';
-					cont.appendChild(this._div);
-					this.parent= cont.id;
-					this._drag_obj.destroy();
-					initSortable();
-				}
-				break;
+				case 'container':
+					if( curr_pos != 'relative' )
+					{
+						// find first container and put the component in it
+						var cont= document.getElementsByClassName('container')[0];
+						this._div.style.position= 'relative';
+						this._div.style.left= '0';
+						this._div.style.top= '0';
+						cont.appendChild(this._div);
+						this.parent= cont.id;
+						this._drag_obj.destroy();
+						initSortable();
+					}
+					break;
 
-			case 'fixed':
-			case 'absolute':
-				if( curr_pos != this.position )
-				{
-					// remove from current container
-					this._div.parentNode.removeChild(this._div);
+				case 'fixed':
+				case 'absolute':
+					if( curr_pos != this.position )
+					{
+						// remove from current container
+						this._div.parentNode.removeChild(this._div);
 
-					// then add it as a child of body
-					var body= document.getElementsByTagName('body').item(0);
-					this._div.style.position= this.position;
-					this._div.style.left= '0';
-					this._div.style.top= '0';
+						// then add it as a child of body
+						var body= document.getElementsByTagName('body').item(0);
+						this._div.style.position= this.position;
+						this._div.style.left= '0';
+						this._div.style.top= '0';
 
-					body.appendChild(this._div);
-					this._drag_obj= new Draggable(this._div.id, {snap: 10, handle: 'handle'});
-				}
-				break;
-			}
-		};";
+						body.appendChild(this._div);
+						this._drag_obj= new Draggable(this._div.id, {snap: {$CONF['dragdrop_snap']}, handle: 'handle'});
+					}
+					break;
+				}";
+		}
+
+		$script_saveProperty.= '};';
 	}
 
 	$xtpl->concat('ADDED_JS', $script_fillProperty);
@@ -718,6 +718,15 @@ if( $edit_mode )
 	$xtpl->concat('ADDED_JS', $script_init_obj);
 	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
 	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
+
+	// init page properties
+	$script= '';
+	foreach($page->getProperties() as $name => $prop)
+	{
+		$script.= "page['{$name}']= unescape(\"{$prop->value}\");\n";
+	}
+
+	$xtpl->concat('ADDED_JS', $script);
 
 	// add model for each component
 	foreach($available_components as $comp)

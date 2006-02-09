@@ -21,6 +21,7 @@ var rules= {
 
 	'#apply_properties': function(el){
 		el.onclick= function(e){
+			tinyMCE.triggerSave();
 			lastselected.savePropertyPanel();
 			lastselected.updateContent();
 			$('save_page').disabled= false;
@@ -31,8 +32,8 @@ var rules= {
 		el.onclick= function(e){
 			if( lastselected != null )
 			{
-				var form= document.getElementsByTagName('form').item(0);
-				form.removeChild( lastselected._div );
+				var body= document.getElementsByTagName('body').item(0);
+				body.removeChild( lastselected._div );
 				hidePropertyPanels();
 			}
 		}
@@ -43,18 +44,37 @@ var rules= {
 
 	'#page_properties': function(el){
 		el.onclick= function(e){
+			if( lastselected != null )
+			{
+				Element.removeClassName(lastselected._div, 'component_selected');
+				lastselected.savePropertyPanel();
+				lastselected.updateContent();
+			}
+			page.fillPropertyPanel();
+			lastselected= page;
+			$('disp_comp_id').innerHTML= 'Page';
 			display_properties('Page');
 		}
 	},
 
 	'#save_page' : function(el){
 		el.onclick= function(){
-			var opt = document.getElementById('properties_panel') ;
-			var f= document.getElementById("savedPage");
+			//var opt = document.getElementById('properties_panel') ;
+			//var f= document.getElementById("savedPage");
 			var data= '';
 
 
-			data+='<page name="' + $('page_name').value + '" template="' + $('page_template').value + '" >\n';
+			data+='<page ';
+			for( prop in page )
+			{
+				if( (typeof page[prop] != "function") && (prop.charAt(0) != '_'))
+				{
+					data+= prop + '="' + escape(page[prop].replace(/"/g, "'")) + '" ';
+				}
+			}
+
+			data+= '>';
+
 
 			var nodes= document.getElementsByClassName('component');
 			for(var i= 0; i< nodes.length; i++)

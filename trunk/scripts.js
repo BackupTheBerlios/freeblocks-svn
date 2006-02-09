@@ -118,3 +118,10 @@ function getCookie (name) {
 	return null;
 }
 
+
+var Page= Class.create();
+Page.prototype.initialize= function(){};
+Page.prototype.updateContent= function(){};
+
+var page= new Page();
+

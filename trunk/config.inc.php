@@ -1,5 +1,7 @@
 <?php
 
+$CONF['dragdrop_snap']= 5;
+
 // themes
 $CONF['themes']= array(
 	'base_folder' 	=> 'templates',

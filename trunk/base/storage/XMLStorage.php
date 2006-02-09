@@ -95,7 +95,7 @@ class XMLStorage extends Storage
 				// find the page node
 				foreach( $config_node->childNodes as $node )
 				{
-					if( ($node instanceof DOMElement) && ($node->nodeName == 'page') && ($node->getAttribute('name') == $_POST['page']) )
+					if( ($node instanceof DOMElement) && ($node->nodeName == 'page') && ($node->getAttribute('name') == $this->_connec_data[1]) )
 					{
 						// we found it
 						$old_page_node= $node;
