@@ -1,13 +1,21 @@
 
 /* global styles*/
-/*
+
 INPUT[type=button] {
 	border: 1px solid black;
-}*/
+}
+
+INPUT[type=button]:hover {
+	background-color: white;
+}
 
 
 BODY {
 	margin-bottom: 4em;
+}
+
+A>IMG {
+	border: none;
 }
 
 
@@ -64,10 +72,12 @@ BODY {
 
 #apply_properties {
 	float: left;
+	clear: left;
 }
 
 #delete_component {
 	float: right;
+	clear: right;
 }
 
 
@@ -322,16 +332,29 @@ BODY {
 /**************/
 /* prop array */
 
+#properties_panel .multiprop_model {
+	display: none;
+}
+
 #properties_panel .multiprop {
 	outline: 1px dashed black;
 	margin-top: 20px;
 }
 
 #properties_panel .multiprop .title {
+	margin-left: 25%;
+	padding: 1px;
+	background-color: transparent;
+	border: none;
+	text-align: left;
+	width: 50%;
+}
+
+#properties_panel .multiprop .multiprop_item .title {
 	display: none;
 }
 
-#properties_panel .multiprop + .multiprop {
+#properties_panel .multiprop_item + .multiprop_item {
 	margin-top: 2px;
 	margin-bottom: 2px;
 }
@@ -343,7 +366,8 @@ BODY {
 }
 
 #properties_panel .multiprop .item .add_button{
-	border: 1px solid black;
+	display: block;
+	width: 19px;
 }
 
 #properties_panel .multiprop .item INPUT[type=text] {

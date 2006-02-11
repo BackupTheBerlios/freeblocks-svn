@@ -14,7 +14,7 @@
 				<div class="item">
 
 					<!-- BEGIN: add_button -->
-					<a href="" class="add_button">+</a>
+					<a href="" class="add_button"><img onclick="{CLICK_CALLBACK}" src="base/img/add.png" /></a>
 					<!-- END: add_button -->
 
 					<!-- BEGIN: text -->

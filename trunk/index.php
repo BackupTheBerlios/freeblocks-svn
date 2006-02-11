@@ -399,7 +399,6 @@ if( $edit_mode )
 		tinyMCE.init({
 			mode 		: "textareas",
 			theme 		: "advanced",
-			language	: "en",
 			plugins 	: "advimage,fullscreen",
 			external_image_list_url : "img_list.js.php",
 			advimage_styles : "float left=float_left;float right=float_right",
@@ -538,11 +537,14 @@ if( $edit_mode )
 			$prop_xtpl->parse('main.component.category.item');
 
 
-			$prop_xtpl->assign('TITLE', $name);
-			$prop_xtpl->assign('CLASS', 'multiprop');
+			$prop_xtpl->assign('TITLE', $name . '(s)');
+			$prop_xtpl->assign('CLASS', 'multiprop_model');
 			$prop_xtpl->parse('main.component.category');
 
 			$prop_xtpl->assign('CLASS', 'multiprop multiprop_' . $comp . '_' . $name);
+			$prop_xtpl->assign('CLICK_CALLBACK', "{$comp}_{$name}_additem()");
+			$prop_xtpl->parse('main.component.category.item.add_button');
+			$prop_xtpl->parse('main.component.category.item');
 			$prop_xtpl->parse('main.component.category');
 		}
 
@@ -570,6 +572,7 @@ if( $edit_mode )
 
 	$script_fillProperty= '';
 	$script_saveProperty= '';
+	$parray_script= '';
 	foreach( array_merge($available_components, array('Page')) as $comp)
 	{
 		$tmp= new $comp();
@@ -624,45 +627,76 @@ if( $edit_mode )
 			foreach($prop_arr as $prop)
 			{
 				$script_fillProperty.= "
-					for(var i= 0; i< this._children.length; i++)
+					for(var i= 1; i<= this._children.length; i++)
 					{
 						var tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
 						if( tmp == null )
 						{
-							tmp= $('{$comp}_{$name}_{$prop->name}-' + (i-1)).parentNode.parentNode;
-							var new_node= tmp.cloneNode(true);
-							var parent= document.getElementsByClassName('multiprop_{$comp}_{$name}')[0];
-							parent.appendChild(new_node);
-
-							// now give correct id to the new fields
-							for(var j= 0; j< new_node.childNodes.length; j++)
-							{
-								for(var k= 0; k< new_node.childNodes[j].childNodes.length; k++)
-								{
-									var child= new_node.childNodes[j].childNodes[k];
-									if( child.id )
-									{
-										var parts= child.id.split('-');
-										child.id= parts[0] + '-' + (parseInt(parts[1])+1);
-									}
-								}
-							}
-
+							{$comp}_{$name}_additem();
 							tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
 						}
 
-						tmp.value= this._children[i].{$prop->name};
+						tmp.value= this._children[i-1].{$prop->name};
 					}
 				";
 
 				$script_saveProperty.= "
-					for(var i= 0; i< this._children.length; i++)
+					for(var i= 1;; i++)
 					{
 						var tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
-						this._children[i].{$prop->name}= tmp.value;
+						if( tmp != null )
+						{
+							if( (i-1) >= this._children.length )
+							{
+								this._children[i-1]= {};
+							}
+
+							this._children[i-1].{$prop->name}= tmp.value;
+						}
+						else
+						{
+							break;
+						}
 					}
 				";
 			}
+
+			$prop_name= array_pop($prop_arr)->name;
+			$parray_script.= "
+				function {$comp}_{$name}_additem()
+				{
+					var model= $('{$comp}_{$name}_{$prop_name}-0').parentNode.parentNode;
+					var new_node= model.cloneNode(true);
+					new_node.className= 'multiprop_item';
+
+					var parent= document.getElementsByClassName('multiprop_{$comp}_{$name}')[0];
+					parent.insertBefore(new_node, parent.lastChild.previousSibling);
+
+					// find an unused id
+					var i;
+					for(i= 1;;i++)
+					{
+						if( $('{$comp}_{$name}_{$prop_name}-' + i) == null )
+						{
+							break;
+						}
+					}
+
+					// now give correct id to the new fields
+					for(var j= 0; j< new_node.childNodes.length; j++)
+					{
+						for(var k= 0; k< new_node.childNodes[j].childNodes.length; k++)
+						{
+							var child= new_node.childNodes[j].childNodes[k];
+							if( child.id )
+							{
+								var parts= child.id.split('-');
+								child.id= parts[0] + '-' + i;
+							}
+						}
+					}
+				}
+			";
 		}
 
 		$script_fillProperty.= "};";
@@ -715,6 +749,7 @@ if( $edit_mode )
 
 	$xtpl->concat('ADDED_JS', $script_fillProperty);
 	$xtpl->concat('ADDED_JS', $script_saveProperty);
+	$xtpl->concat('ADDED_JS', $parray_script);
 	$xtpl->concat('ADDED_JS', $script_init_obj);
 	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
 	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
