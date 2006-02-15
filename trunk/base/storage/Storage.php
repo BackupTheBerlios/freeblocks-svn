@@ -16,8 +16,6 @@ abstract class Storage
 		$this->_connec_data= $connec_arr;
 	}
 
-	abstract public function loadData();
-
 	public function getPageData()
 	{
 		return $this->_page_data;
@@ -28,6 +26,9 @@ abstract class Storage
 		return $this->_components_data;
 	}
 
+
+	abstract public function loadData();
+	abstract public function getPagesList();
 	abstract public function savePage($components);
 }
 

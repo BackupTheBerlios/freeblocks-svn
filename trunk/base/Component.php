@@ -134,6 +134,7 @@ abstract class Component extends BaseComponent
 {
 	protected $_xml_subnodes= array();
 	protected $_css_style= array();
+	protected $_has_children_handler= false;
 
 
 	/**
@@ -151,7 +152,7 @@ abstract class Component extends BaseComponent
 
 		$this->addProperty('preview', 'Show preview', Component::TYPE_BOOL, 'true');
 		$this->addProperty('width', 'Width', Component::TYPE_TEXT, 'auto');
-		$this->addProperty('position', 'Positionning', Component::TYPE_CHOICE, 'Container', array(
+		$this->addProperty('position', 'Positionning', Component::TYPE_CHOICE, 'absolute', array(
 			'values' => array(
 				'container' => 'Container',
 				'absolute' => 'Absolute',
@@ -186,6 +187,19 @@ abstract class Component extends BaseComponent
 		$ret.= "}";
 
 		return $ret;
+	}
+
+	public function hasChildrenHandler()
+	{
+		return $this->_has_children_handler;
+	}
+
+	public function getPropertyPanelChildrenHandler()
+	{
+		if( $this->_has_children_handler === true )
+		{
+			return $this->_getPropertyPanelChildrenHandler();
+		}
 	}
 
 	public function getFirstNonEmpty(/* ... */)

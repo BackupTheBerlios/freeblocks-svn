@@ -13,10 +13,6 @@
 				<!-- BEGIN: item -->
 				<div class="item">
 
-					<!-- BEGIN: add_button -->
-					<a href="" class="add_button"><img onclick="{CLICK_CALLBACK}" src="base/img/add.png" /></a>
-					<!-- END: add_button -->
-
 					<!-- BEGIN: text -->
 					<label for="{ID}">{DISPLAY_NAME}</label>
 					<input class="prop" id="{ID}" type="text"/>
@@ -69,6 +65,10 @@
 
 			</div>
 			<!-- END: category -->
+
+			<!-- BEGIN: custom -->
+			{CUSTOM_CONTENT}
+			<!-- END: custom -->
 
 		</div>
 		<!-- END: component -->

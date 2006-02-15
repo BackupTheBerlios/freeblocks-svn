@@ -11,10 +11,10 @@ class Menu extends Component
 	{
 		parent::__construct();
 
-		$this->addPropertyArray('item', array(
-			'label' => new Property('label', 'Label', BaseComponent::TYPE_TEXT, ''),
-			'url' => new Property('url', 'Target', BaseComponent::TYPE_TEXT, '' )
-		));
+		$this->addPropertyArray('item', array( 'label', 'page', 'url') );
+
+		// tell the base class we handle children nodes
+		$this->_has_children_handler= true;
 	}
 
 	public function getIcon()
@@ -32,9 +32,18 @@ class Menu extends Component
 			{
 				$label= isset($post['label'])?$post['label']:'no label';
 				$url= isset($post['url'])?$post['url']:'';
+				$page= isset($post['page'])?$post['page']:'';
 
 				$this->xtpl->assign('LABEL', $label);
-				$this->xtpl->assign('URL', $url);
+
+				if( $page == 'true' )
+				{
+					$this->xtpl->assign('URL', '?page=' . $url);
+				}
+				else
+				{
+					$this->xtpl->assign('URL', $url);
+				}
 
 				$this->xtpl->parse('main.item');
 			}
@@ -43,6 +52,22 @@ class Menu extends Component
 		$this->xtpl->assign('CONTENT', $content);
 
 		return parent::renderComponent();
+	}
+
+	/**
+	 * This function return the html to include in the property panel
+	 * to handle children nodes of this component
+	 *
+	 * @return text
+	 */
+	protected function _getPropertyPanelChildrenHandler()
+	{
+		$this->xtpl->assign('CSS_CLASS', 'item_model');
+		$this->xtpl->parse('multi_item.multi_item_line');
+		$this->xtpl->parse('multi_item.add_button');
+
+		$this->xtpl->parse('multi_item');
+		return $this->xtpl->text('multi_item');
 	}
 }
 

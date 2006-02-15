@@ -42,6 +42,96 @@ if (document.all)
   };
 }
 
+function max(a, b)
+{
+	if( a >= b )
+	{
+		return a;
+	}
+	else
+	{
+		return b;
+	}
+}
+
+FormElement= {
+	getValue: function(element){
+		element= $(element);
+		var method = element.tagName.toLowerCase();
+
+		return FormElement.Getters[method](element);
+	},
+
+	setValue: function(element, newval){
+		element= $(element);
+		var method = element.tagName.toLowerCase();
+		FormElement.Setters[method](element, newval);
+	}
+};
+
+FormElement.Getters= {
+	input: function(element) {
+		switch (element.type.toLowerCase()) {
+		case 'submit':
+		case 'hidden':
+		case 'password':
+		case 'text':
+			return FormElement.Getters.textarea(element);
+		case 'checkbox':
+		case 'radio':
+			return FormElement.Getters.inputSelector(element);
+		}
+
+		return false;
+	},
+
+	inputSelector: function(element){
+		return element.checked?'true':'false';
+	},
+
+	select: function(element) {
+		return element.value;
+	},
+
+	textarea: function(element){
+		return element.value;
+	}
+};
+
+FormElement.Setters= {
+	input: function(element, newval) {
+		switch (element.type.toLowerCase()) {
+		case 'submit':
+		case 'hidden':
+		case 'password':
+		case 'text':
+			element.value= newval;
+			break;
+
+		case 'checkbox':
+		case 'radio':
+			element.checked= (newval == 'true');
+			break;
+		}
+
+		return false;
+	},
+
+	select: function(element, newval) {
+		element.value= newval;
+		/*
+		for(var i= 0; i< element.options.length; i++)
+		{
+			alert( element.options[i].value + ' ' + newval );
+			if( element.options[i].value == newval )
+			{
+				element.selectedIndex= i;
+				break;
+			}
+		}*/
+	}
+};
+
 Draggables.addObserver({
 	onStart: function(event_name, obj, e){
 		if( Element.hasClassName(obj.element, 'component') )

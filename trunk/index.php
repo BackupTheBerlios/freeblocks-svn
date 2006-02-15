@@ -240,7 +240,6 @@ foreach( $storage->getComponentsData() as $comp_data )
 	}
 }
 
-
 $xtpl->concat('TEMPLATE_DIR', $CONF['themes']['base_folder'] . "/{$CONF['themes']['current']}");
 $xtpl->concat('TITLE', $page->getPropertyValue('title'));
 
@@ -255,6 +254,17 @@ $xtpl->concat('HEAD', '<script type="text/javascript" src="tinymce/jscripts/tiny
 
 
 $xtpl->concat('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
+
+// add component specifis css
+foreach($available_components as $comp)
+{
+	$fname= "components/{$comp}/{$comp}.css";
+
+	if( file_exists($fname) )
+	{
+		$xtpl->concat('HEAD', "<link rel=\"stylesheet\" href=\"{$fname}\"></link>\n");
+	}
+}
 
 if( $edit_mode )
 {
@@ -310,6 +320,12 @@ if( $edit_mode )
 	");
 
 // build page bar
+	$opt_pages_list= '';
+	foreach($storage->getPagesList() as $p)
+	{
+		$opt_pages_list.= "<option value=\"{$p}\" " . (($p==$_GET['page'])?'selected="true"':'') . ">{$p}</option>";
+	}
+
 	$xtpl->concat('BODY', '
 	<div id="toolbar">
 		<div id="loading_indicator">Loading...
@@ -318,6 +334,10 @@ if( $edit_mode )
 		<div class="toolbar_button">
 			<input id="show_properties" type="checkbox" checked="1"/>
 			<label for="show_properties">Show properties</label>
+		</div>
+
+		<div class="toolbar_button">
+			<select id="page_select">' . $opt_pages_list . '</select>
 		</div>
 
 		<div class="toolbar_button">
@@ -357,7 +377,14 @@ if( $edit_mode )
 				tmp._div.style.left= '0';
 				tmp._div.style.top= '0';
 				tmp._div.onclick= function(){ component_clicked(this) };
+		";
 
+		foreach($c->getProperties() as $name => $prop)
+		{
+			$script.= "tmp['{$name}']= unescape(\"{$prop->value}\");\n";
+		}
+
+		$script.= "
 				handle= document.createElement('<div>');
 				handle.className= 'handle';
 
@@ -478,74 +505,10 @@ if( $edit_mode )
 		$prop_xtpl->assign('CLASS', 'category');
 		$prop_xtpl->parse('main.component.category');
 
-
-		/////////////////////////////
-		// add array of properties
-		foreach($tmp->getPropertiesArray() as $name => $prop_arr)
+		if( ($comp != 'Page') && $tmp->hasChildrenHandler() )
 		{
-			foreach($prop_arr as $prop)
-			{
-				$prop_xtpl->assign('ID', $comp . '_' . $name . '_' . $prop->name . '-0');
-				$prop_xtpl->assign('DISPLAY_NAME', $prop->dispname);
-
-				switch($prop->type)
-				{
-
-				case BaseComponent::TYPE_TEXT:
-
-					if( !isset($prop->params['lines']) || ($prop->params['lines'] == 1) )
-					{
-						$prop_xtpl->parse('main.component.category.item.text');
-					}
-					else
-					{
-						$prop_xtpl-> assign('LINES', $prop->params['lines']);
-						$prop_xtpl->parse('main.component.category.item.textarea');
-					}
-					break;
-
-				case BaseComponent::TYPE_SLIDER:
-					foreach( $prop->params as $name => $val )
-					{
-						$prop_xtpl->assign('PARAM_' . strtoupper($name), $val);
-					}
-
-					$prop_xtpl->parse('main.component.category.item.slider');
-					break;
-
-				case BaseComponent::TYPE_CHOICE:
-
-					foreach($prop->params['values'] as $val => $label)
-					{
-						$prop_xtpl->assign('VALUE', $val);
-						$prop_xtpl->assign('LABEL', $label);
-						$prop_xtpl->parse('main.component.category.item.choice.option');
-					}
-
-					$prop_xtpl->parse('main.component.category.item.choice');
-					break;
-
-				case BaseComponent::TYPE_BOOL:
-					$prop_xtpl->parse('main.component.category.item.bool');
-					break;
-
-
-				}
-
-				$prop_xtpl->parse('main.component.category.item');
-			}
-			$prop_xtpl->parse('main.component.category.item');
-
-
-			$prop_xtpl->assign('TITLE', $name . '(s)');
-			$prop_xtpl->assign('CLASS', 'multiprop_model');
-			$prop_xtpl->parse('main.component.category');
-
-			$prop_xtpl->assign('CLASS', 'multiprop multiprop_' . $comp . '_' . $name);
-			$prop_xtpl->assign('CLICK_CALLBACK', "{$comp}_{$name}_additem()");
-			$prop_xtpl->parse('main.component.category.item.add_button');
-			$prop_xtpl->parse('main.component.category.item');
-			$prop_xtpl->parse('main.component.category');
+			$prop_xtpl->assign('CUSTOM_CONTENT', $tmp->getPropertyPanelChildrenHandler());
+			$prop_xtpl->parse('main.component.custom');
 		}
 
 		$prop_xtpl->parse('main.component');
@@ -572,7 +535,6 @@ if( $edit_mode )
 
 	$script_fillProperty= '';
 	$script_saveProperty= '';
-	$parray_script= '';
 	foreach( array_merge($available_components, array('Page')) as $comp)
 	{
 		$tmp= new $comp();
@@ -580,7 +542,8 @@ if( $edit_mode )
 		$script_init_obj= '';
 
 		$script_fillProperty.= "\n{$comp}.prototype.fillPropertyPanel= function(){ ";
-		$script_saveProperty.= "\n{$comp}.prototype.savePropertyPanel= function(){ ";
+		$script_saveProperty.= "\n{$comp}.prototype.savePropertyPanel= function(){
+									this._children= null;";
 
 		foreach($tmp->getProperties() as $prop)
 		{
@@ -624,34 +587,72 @@ if( $edit_mode )
 
 		foreach($tmp->getPropertiesArray() as $name => $prop_arr)
 		{
-			foreach($prop_arr as $prop)
+			foreach($prop_arr as $prop_name)
 			{
 				$script_fillProperty.= "
-					for(var i= 1; i<= this._children.length; i++)
+					if( this._children )
 					{
-						var tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
-						if( tmp == null )
+						for(var i= 1;; i++)
 						{
-							{$comp}_{$name}_additem();
-							tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
-						}
+							var tmp= $('{$comp}_{$name}_{$prop_name}-' + i);
 
-						tmp.value= this._children[i-1].{$prop->name};
+							// first check if we have a children to fill this line
+							if( (i-1) >= this._children.length )
+							{
+								// we dont, so delete this line
+								if( tmp != null )
+								{
+									{$comp}.multi_{$name}_removeline( $('{$comp}_{$name}_{$prop_name}-' + i) );
+								}
+								else
+								{
+									// if we ware here this means we have no data and
+									// no lines, so just end it
+									break;
+								}
+							}
+							else
+							{
+								// else check if a line exists to put data into
+								if( tmp == null )
+								{
+									{$comp}.multi_{$name}_addline();
+									tmp= $('{$comp}_{$name}_{$prop_name}-' + i);
+								}
+
+								//tmp.value= this._children[i-1].{$prop_name};
+								FormElement.setValue(tmp, this._children[i-1].{$prop_name});
+								//alert(tmp.id + ' => ' + this._children[i-1].{$prop_name});
+
+								if( this.compValueChanged )
+								{
+									this.compValueChanged(tmp);
+								}
+							}
+						}
 					}
 				";
+
+
+
 
 				$script_saveProperty.= "
 					for(var i= 1;; i++)
 					{
-						var tmp= $('{$comp}_{$name}_{$prop->name}-' + i);
+						var tmp= $('{$comp}_{$name}_{$prop_name}-' + i);
 						if( tmp != null )
 						{
-							if( (i-1) >= this._children.length )
+							if( this._children == null )
 							{
-								this._children[i-1]= {};
+								this._children= new Array();
 							}
 
-							this._children[i-1].{$prop->name}= tmp.value;
+							if( (i-1) >= this._children.length )
+							{
+								this._children[i-1]= {tagName: '{$name}' };
+							}
+
+							this._children[i-1].{$prop_name}= FormElement.getValue(tmp);
 						}
 						else
 						{
@@ -660,43 +661,6 @@ if( $edit_mode )
 					}
 				";
 			}
-
-			$prop_name= array_pop($prop_arr)->name;
-			$parray_script.= "
-				function {$comp}_{$name}_additem()
-				{
-					var model= $('{$comp}_{$name}_{$prop_name}-0').parentNode.parentNode;
-					var new_node= model.cloneNode(true);
-					new_node.className= 'multiprop_item';
-
-					var parent= document.getElementsByClassName('multiprop_{$comp}_{$name}')[0];
-					parent.insertBefore(new_node, parent.lastChild.previousSibling);
-
-					// find an unused id
-					var i;
-					for(i= 1;;i++)
-					{
-						if( $('{$comp}_{$name}_{$prop_name}-' + i) == null )
-						{
-							break;
-						}
-					}
-
-					// now give correct id to the new fields
-					for(var j= 0; j< new_node.childNodes.length; j++)
-					{
-						for(var k= 0; k< new_node.childNodes[j].childNodes.length; k++)
-						{
-							var child= new_node.childNodes[j].childNodes[k];
-							if( child.id )
-							{
-								var parts= child.id.split('-');
-								child.id= parts[0] + '-' + i;
-							}
-						}
-					}
-				}
-			";
 		}
 
 		$script_fillProperty.= "};";
@@ -749,7 +713,6 @@ if( $edit_mode )
 
 	$xtpl->concat('ADDED_JS', $script_fillProperty);
 	$xtpl->concat('ADDED_JS', $script_saveProperty);
-	$xtpl->concat('ADDED_JS', $parray_script);
 	$xtpl->concat('ADDED_JS', $script_init_obj);
 	$xtpl->concat('BODY', '<script src="callbacks.js" type="text/javascript"></script>' . "\n");
 	$xtpl->concat('BODY', '<div id="debug">Generation time: ' . (microtime(true) - $start_time) . '</div>');
@@ -760,6 +723,9 @@ if( $edit_mode )
 	{
 		$script.= "page['{$name}']= unescape(\"{$prop->value}\");\n";
 	}
+
+	$script.= 'var pages_list= ["' . implode( '","', $storage->getPagesList()) . '"];';
+
 
 	$xtpl->concat('ADDED_JS', $script);
 

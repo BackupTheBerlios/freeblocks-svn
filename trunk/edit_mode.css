@@ -37,6 +37,10 @@ A>IMG {
 	border: 1px solid gray;
 }
 
+.component+.component {
+	margin-top: 2px;
+}
+
 .component .handle {
 	cursor: move;
 	background: url('base/img/move.gif') no-repeat center center;
@@ -162,6 +166,10 @@ A>IMG {
 
 #show_properties_div {
 	position: static;
+}
+
+#page_select {
+	width: 100px;
 }
 
 /**************/

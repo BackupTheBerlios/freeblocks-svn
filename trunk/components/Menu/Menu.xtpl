@@ -7,3 +7,32 @@
 
 </div>
 <!-- END: main -->
+
+
+<!-- BEGIN: multi_item -->
+<div id="multiprop_Menu_item">
+	<div class="menu_title">Item(s)</div>
+
+	<div class="header">
+		<label>label</label>
+		<label>target=page</label>
+		<label>url</label>
+	</div>
+
+	<!-- BEGIN: multi_item_line -->
+	<div class="line line_model">
+		<div class="remove_button" onclick="Menu.multi_item_removeline( Event.element(event) );"></div>
+		<input type="text" id="Menu_item_label-0"/>
+		<input type="checkbox" id="Menu_item_page-0" onchange="Menu.pageCheckChanged( Event.element(event) )"/>
+		<input type="text" id="Menu_item_url-0" onchange="alert('new_value')"/>
+	</div>
+	<!-- END: multi_item_line -->
+
+	<!-- BEGIN: add_button -->
+	<a href="" class="add_button"><img onclick="Menu.multi_item_addline();" src="base/img/add.png" /></a>
+	<!-- END: add_button -->
+
+</div>
+<!-- END: multi_item -->
+
+

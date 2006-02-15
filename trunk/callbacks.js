@@ -24,7 +24,9 @@ var rules= {
 			tinyMCE.triggerSave();
 			lastselected.savePropertyPanel();
 			lastselected.updateContent();
+
 			$('save_page').disabled= false;
+			$('page_select').disabled= true;
 		}
 	},
 
@@ -32,8 +34,7 @@ var rules= {
 		el.onclick= function(e){
 			if( lastselected != null )
 			{
-				var body= document.getElementsByTagName('body').item(0);
-				body.removeChild( lastselected._div );
+				Element.remove(lastselected._div);
 				hidePropertyPanels();
 			}
 		}
@@ -54,6 +55,12 @@ var rules= {
 			lastselected= page;
 			$('disp_comp_id').innerHTML= 'Page';
 			display_properties('Page');
+		}
+	},
+
+	'#page_select' : function(el){
+		el.onchange= function(e){
+			window.location= '?edit=1&page=' + $('page_select').value;
 		}
 	},
 
@@ -135,6 +142,8 @@ var rules= {
 
 			displayloading();
 
+			//$('middle_container').textContent= data;
+
 			new Ajax.Request('save_page.php', {
 
 				parameters: 'lines=' + data + "&page=" + $('old_page_name').value,
@@ -144,6 +153,7 @@ var rules= {
 
 					add_display_msg(xml.getAttribute('msg'), (xml.getAttribute('ret') == "ok")?'lightgreen':'red');
 					$('save_page').disabled= true;
+					$('page_select').disabled= false;
 					hideLoading();
 
 					//$('middle_container').textContent= req.responseText;

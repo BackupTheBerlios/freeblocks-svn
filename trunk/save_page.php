@@ -55,8 +55,15 @@ if( isset($_POST["lines"]) )
 	$page_xml= new DOMDocument();
 	if( @$page_xml->loadXML($lines) )
 	{
-		$storage->savePage($page_xml->documentElement);
-		echo '<return ret="ok" msg="XML file saved" />';
+		$ret= $storage->savePage($page_xml->documentElement);
+		if( $ret === true )
+		{
+			echo '<return ret="ok" msg="XML file saved" />';
+		}
+		else
+		{
+			echo '<return ret="err" msg="file not writeable" />';
+		}
 	}
 	else
 	{

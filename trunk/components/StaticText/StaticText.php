@@ -9,7 +9,7 @@ class StaticText extends Component
 	public function __construct()
 	{
 		parent::__construct();
-		$this->addProperty('text', 'Text', BaseComponent::TYPE_TEXT, '', array(
+		$this->addProperty('text', 'Text', BaseComponent::TYPE_TEXT, 'no text', array(
 			'lines' => 5
 		));
 	}
