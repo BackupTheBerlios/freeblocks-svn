@@ -4,6 +4,8 @@
 Menu= Class.create();
 Menu.prototype= Object.extend(new Component(), {
 
+	jsClass: 'Menu',
+
 	updateContent: function(){
 		var nodes= this._div.getElementsByTagName('a');
 		var numchildren= (this._children != null)?this._children.length:0;

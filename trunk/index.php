@@ -134,24 +134,13 @@ foreach( $storage->getComponentsData() as $comp_data )
 	{
 		$script="
 			tmp= new {$comp_class}();
-			tmp._div= $('{$comp_id}');
-			tmp._div.obj= tmp;
-			tmp._div.style.left= '{$x}';
-			tmp._div.style.top= '{$y}';
-			tmp._div.onclick= function(){ component_clicked(this) };
+			tmp.setup( $('{$comp_id}') );
+			new Effect.Move($('{$comp_id}'), {
+				mode: 'absolute',
+				x: {$x},
+				y: {$y}
+			});
 
-			handle= document.createElement('<div>');
-			handle.className= 'handle';
-
-			Element.setOpacity(handle, 0.7);
-
-			//tmp._div.appendChild(handle);
-			tmp._div.insertBefore(handle, tmp._div.firstChild);
-
-			if( tmp.updateContent == null )
-			{
-				tmp.updateContent= function(){};
-			}
 		";
 
 		foreach($c->getProperties() as $name => $prop)
@@ -270,54 +259,13 @@ if( $edit_mode )
 {
 	$xtpl->concat('HEAD', '<link rel="stylesheet" href="edit_mode.css"></link>' . "\n");
 
+	$xtpl->concat('TITLE', ' (Edit Mode)');
 
 	foreach($available_components as $comp)
 	{
 		$xtpl->concat('HEAD', "<script src=\"components/{$comp}/{$comp}.js\" type=\"text/javascript\"></script>\n");
 	}
 
-	$xtpl->concat('TITLE', ' (Edit Mode)');
-	$xtpl->concat('ADDED_JS', "
-		var drag_prop= new Draggable('properties_panel',
-			{handle: 'title',
-			 starteffect: null,
-			 endeffect: null,
-			 change: function(obj){
-			 	var now= new Date();
-				setCookie('prop_x', obj.element.style.left, new Date(now.getTime() +3600 * 15 * 1000));
-				setCookie('prop_y', obj.element.style.top, new Date(now.getTime() +3600 * 15 * 1000));
-			 }
-			}
-		);
-
-		drag_prop.element.style.left= getCookie('prop_x');
-		drag_prop.element.style.top= getCookie('prop_y');
-
-	// enumerate all the possible containers on the template
-
-		function initSortable()
-		{
-			var containers= new Array();
-			var nodes= document.getElementsByClassName('container');
-			for(var i= 0; i< nodes.length; i++){
-				containers.push( nodes[i].id );
-
-			}
-
-			for(var i=0; i< containers.length; i++){
-				Sortable.create(containers[i], {
-					tag: 'div',
-					handle: 'handle',
-					hoverclass: 'hover',
-					constraint: false,
-					dropOnEmpty: true,
-					containment: containers
-				})
-			}
-		}
-
-		initSortable();
-	");
 
 // build page bar
 	$opt_pages_list= '';
@@ -364,19 +312,8 @@ if( $edit_mode )
 		$content.= "<a class='item' href='' onclick='create_" . $comp . "(); return false;' style=\"background: url('base/img/" . call_user_method('getIcon', $comp) . "') no-repeat center center\" ></a>";
 		$script= "
 			function create_{$comp}(){
-				var orig= $('model_{$comp}');
-				var new_comp= orig.cloneNode(true);
-
-				var body= document.getElementsByTagName('body').item(0);
-
-				new_comp.id= Component.getUnusedID();
-
 				tmp= new {$comp}();
-				tmp._div= new_comp;
-				new_comp.obj= tmp;
-				tmp._div.style.left= '0';
-				tmp._div.style.top= '0';
-				tmp._div.onclick= function(){ component_clicked(this) };
+				tmp.setup();
 		";
 
 		foreach($c->getProperties() as $name => $prop)
@@ -385,29 +322,8 @@ if( $edit_mode )
 		}
 
 		$script.= "
-				handle= document.createElement('<div>');
-				handle.className= 'handle';
-
-				Element.setOpacity(handle, 0.7);
-
-				tmp._div.appendChild(handle);
-
-				if( tmp.updateContent == null )
-				{
-					tmp.updateContent= function(){};
-				}
-
-				tmp._div.style.position= 'absolute';
-				tmp._div.style.left= '0';
-				tmp._div.style.top= '0';
-
-				tmp['type']= '{$comp}';
-				tmp['id']= new_comp.id;
-
-				body.appendChild(tmp._div);
 				tmp._drag_obj= new Draggable(tmp._div.id, {handle: 'handle'});
-				Effect.Center(new_comp);
-				Element.show(new_comp);
+				Effect.Center(tmp._div);
 			}
 		";
 
@@ -422,22 +338,6 @@ if( $edit_mode )
 
 // build properties panel
 
-	$xtpl->concat('ADDED_JS', '
-		tinyMCE.init({
-			mode 		: "textareas",
-			theme 		: "advanced",
-			plugins 	: "advimage,fullscreen",
-			external_image_list_url : "img_list.js.php",
-			advimage_styles : "float left=float_left;float right=float_right",
-			theme_advanced_disable : "formatselect",
-			theme_advanced_statusbar_location: "bottom",
-			theme_advanced_buttons3_add : "fullscreen",
-			inline_styles : true,
-			content_css : "base.css"
-		});
-
-	');
-
 	// open template for properties
 	$prop_xtpl= new XTemplate('base/templates/properties_panel.xtpl');
 
@@ -448,7 +348,6 @@ if( $edit_mode )
 		// add properties
 		foreach($tmp->getProperties() as $prop)
 		{
-
 			$prop_xtpl->assign('ID', $comp . '_' . $prop->name);
 			$prop_xtpl->assign('DISPLAY_NAME', $prop->dispname);
 
@@ -493,8 +392,6 @@ if( $edit_mode )
 			case BaseComponent::TYPE_BOOL:
 				$prop_xtpl->parse('main.component.category.item.bool');
 				break;
-
-
 			}
 
 			$prop_xtpl->parse('main.component.category.item');
@@ -606,7 +503,7 @@ if( $edit_mode )
 								}
 								else
 								{
-									// if we ware here this means we have no data and
+									// if we are here this means we have no data and
 									// no lines, so just end it
 									break;
 								}
@@ -749,6 +646,8 @@ if( $edit_mode )
 		<div style="display: none" class="error_display"><a class="error_close" href="" onclick="Element.remove(this.parentNode);return false;">Click here to close</a>bla bla</div>
 		</div>
 		');
+
+	$xtpl->concat('BODY', '<script type="text/javascript" src="edit_mode.js"></script>' . "\n");
 }
 
 

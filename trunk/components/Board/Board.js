@@ -4,6 +4,8 @@
 Board= Class.create();
 Board.prototype= Object.extend(new Component(), {
 
+	jsClass: 'Board',
+
 	updateContent: function(){
 
 		if( this.dynamic == "true" )
