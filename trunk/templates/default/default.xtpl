@@ -1,0 +1,33 @@
+<!-- BEGIN: main -->
+<html>
+<head>
+	<title>{TITLE}</title>
+	<link rel="stylesheet" href="{TEMPLATE_DIR}/style.css"></link>
+	{HEAD}
+	<style type="text/css">
+{ADDED_CSS}
+	</style>
+</head>
+<body>
+
+<div id="left_container" class="container">
+	{LEFT_CONTAINER}
+</div>
+
+<div id="right_container" class="container">
+	{RIGHT_CONTAINER}
+</div>
+
+<div id="middle_container" class="container">
+	{MIDDLE_CONTAINER}
+</div>
+
+
+{BODY}
+
+<script type="text/javascript">
+{ADDED_JS}
+</script>
+</body>
+</html>
+<!-- END: main -->

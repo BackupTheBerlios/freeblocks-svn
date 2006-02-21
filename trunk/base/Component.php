@@ -136,6 +136,13 @@ abstract class Component extends BaseComponent
 	protected $_css_style= array();
 	protected $_has_children_handler= false;
 
+	/**
+	 * datasource bound to the component
+	 *
+	 * @var Datasource
+	 */
+	private $_datasource= null;
+
 
 	/**
 	 * template
@@ -223,6 +230,26 @@ abstract class Component extends BaseComponent
 	public function setCSSStyle($name, $val)
 	{
 		$this->_css_style[$name]= $val;
+	}
+
+	public function setDatasource(Datasource $ds)
+	{
+		$this->_datasource= $ds;
+	}
+
+	/**
+	 * return current datasource
+	 *
+	 * @return Datasource
+	 */
+	public function getDatasource()
+	{
+		return $this->_datasource;
+	}
+
+	public function hasDatasource()
+	{
+		return !is_null($this->_datasource);
 	}
 }
 

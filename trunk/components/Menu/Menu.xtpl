@@ -2,7 +2,7 @@
 <div id="{ID}" class="component menu_component">
 
 	<!-- BEGIN: item -->
-	<a href='{URL}'>{LABEL}</a>
+	<a href='{TARGET}'>{LABEL}</a>
 	<!-- END: item -->
 
 </div>
@@ -16,7 +16,7 @@
 	<div class="header">
 		<label>label</label>
 		<label>target=page</label>
-		<label>url</label>
+		<label>target</label>
 	</div>
 
 	<!-- BEGIN: multi_item_line -->
@@ -24,7 +24,7 @@
 		<div class="remove_button" onclick="Menu.multi_item_removeline( Event.element(event) );"></div>
 		<input type="text" id="Menu_item_label-0"/>
 		<input type="checkbox" id="Menu_item_page-0" onchange="Menu.pageCheckChanged( Event.element(event) )"/>
-		<input type="text" id="Menu_item_url-0" onchange="alert('new_value')"/>
+		<input type="text" id="Menu_item_target-0" onchange="alert('new_value')"/>
 	</div>
 	<!-- END: multi_item_line -->
 

@@ -7,6 +7,7 @@ Menu.prototype= Object.extend(new Component(), {
 	jsClass: 'Menu',
 
 	updateContent: function(){
+		/*
 		var nodes= this._div.getElementsByTagName('a');
 		var numchildren= (this._children != null)?this._children.length:0;
 
@@ -34,6 +35,7 @@ Menu.prototype= Object.extend(new Component(), {
 				this._div.appendChild(newnode);
 			}
 		}
+		*/
 
 		this._div.style.width= this.width;
 	},

@@ -17,21 +17,6 @@ class XMLStorage extends Storage
 	 */
 	private $_filename;
 
-	/**
-	 * Contains the page requested
-	 * for the operation
-	 *
-	 * @var text
-	 */
-	private $_current_page;
-
-	/**
-	 * Pages list, filled by loadData
-	 *
-	 * @var array
-	 */
-	private $_pages_list= array();
-
 
 	public function __construct($param)
 	{
@@ -40,6 +25,8 @@ class XMLStorage extends Storage
 		$this->_xml= new DOMDocument();
 		$this->_filename= dirname(__FILE__) . '/../../configs/xml/' . $this->_connec_data[0];
 		$this->_current_page= $this->_connec_data[1];
+
+
 	}
 
 	public function getPagesList()
@@ -59,57 +46,76 @@ class XMLStorage extends Storage
 
 				foreach($xml->documentElement->childNodes as $node)
 				{
-					// load requested page
-					if( ($node->nodeName == "page") )
+					if( $node->nodeName == 'pages' )
 					{
-						$this->_pages_list[]= $node->getAttribute('name');
-
-						if( $node->getAttribute('name') == $this->_current_page )
+						foreach( $node->childNodes as $child )
 						{
-							// parse page properties
-							foreach( $node->attributes as $attr)
+							if( $child->nodeName == 'page' )
 							{
-								$name= $attr->name;
-								$val= $attr->value;
-								$this->_page_data[$name]= $val;
-							}
+								$this->_pages_list[]= strval( $child->getAttribute('name') );
 
-
-
-							// parse children
-							foreach( $node->childNodes as $subnode )
-							{
-								if( $subnode instanceof DOMElement )
+								// load requested page
+								if( $child->getAttribute('name') == $this->_current_page )
 								{
-									$comp= array();
-									$comp['_sub']= array();
-
-									// parse children nodes
-									foreach( $subnode->childNodes as $prop_node )
+									// parse page properties
+									foreach( $child->attributes as $attr)
 									{
-										if( $prop_node instanceof DOMElement )
+										$name= strval($attr->name);
+										$val= strval($attr->value);
+										$this->_page_data[$name]= $val;
+									}
+
+									foreach( $child->childNodes as $comp_node )
+									{
+										if( $comp_node->nodeName == 'component' )
 										{
-											$sub= array();
-											foreach( $prop_node->attributes as $attr )
+											$comp= array();
+											foreach($comp_node->attributes as $attr)
 											{
-												$sub[$attr->name]= rawurldecode($attr->value);
+												$comp[$attr->name]= rawurldecode($attr->value);
 											}
 
-											$sub['tagName']= $prop_node->nodeName;
-											$comp['_sub'][]= $sub;
-											//$comp->addXMLSubNode($prop_node);
+											$this->_components_data[]= $comp;
 										}
 									}
 
-
-									foreach($subnode->attributes as $attr)
-									{
-										$comp[$attr->name]= rawurldecode($attr->value);
-										//$comp->setAttribute($attr->name, $attr->value);
-									}
-
-									$this->_components_data[]= $comp;
 								}
+							}
+						}
+					}
+					// we parse all the datasources we find
+					else if( $node->nodeName == 'datasources' )
+					{
+						foreach( $node->childNodes as $child )
+						{
+							if( $child->nodeName == 'data' )
+							{
+								$ds= new Datasource();
+								$ds->id= strval( $child->getAttribute('id') );
+								$ds->type= strval( $child->getAttribute('type') );
+
+								if( !isset($this->_data_sources[$ds->type]) )
+								{
+									$this->_data_sources[$ds->type]= array();
+								}
+
+								foreach( $child->childNodes as $ds_node )
+								{
+									if( $ds_node->nodeName == 'item' )
+									{
+										$tmp= array();
+										foreach( $ds_node->attributes as $attr )
+										{
+											$name= strval($attr->name);
+											$val= strval($attr->value);
+											$tmp[$name]= $val;
+										}
+
+										$ds->content[]= $tmp;
+									}
+								}
+
+								$this->_data_sources[$ds->type][$ds->id]= $ds;
 							}
 						}
 					}
@@ -117,6 +123,27 @@ class XMLStorage extends Storage
 			}
 		}
 	}
+
+
+	function getDatasource($block_type, $block_name)
+	{
+		$ret= null;
+
+		$block_type= strtolower($block_type);
+		$block_name= strtolower($block_name);
+
+		if( isset($this->_data_sources[$block_type]) )
+		{
+			$tmp= $this->_data_sources[$block_type];
+			if( isset($tmp[$block_name]) )
+			{
+				$ret= $tmp[$block_name];
+			}
+		}
+
+		return $ret;
+	}
+
 
 	/**
 	 * replace data for current page

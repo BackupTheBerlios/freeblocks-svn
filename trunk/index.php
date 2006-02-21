@@ -12,7 +12,10 @@ require_once(dirname(__FILE__) . "/config.inc.php");
 require_once(dirname(__FILE__) . "/lib/xtpl/xtemplate.class.php");
 require_once(dirname(__FILE__) . "/base/Component.php");
 require_once(dirname(__FILE__) . "/base/Page.php");
+require_once(dirname(__FILE__) . "/base/common.inc.php");
 
+
+define('DEBUG', 1);
 
 
 if( !isset($_GET['page']) )
@@ -65,7 +68,7 @@ if( $dir )
 
 $page= new Page();
 
-// Load data from storage class
+// Load data layout data from storage class
 $storage= new $storage_class( array($CONF['configs']['current'], $_GET['page']) );
 $storage->loadData();
 
@@ -85,6 +88,7 @@ if( !file_exists($filename) )
 $xtpl= new XTemplate($filename);
 
 // create all the components from loaded data
+// and load associated datasources
 foreach( $storage->getComponentsData() as $comp_data )
 {
 	$class_name= $comp_data['type'];
@@ -119,10 +123,21 @@ foreach( $storage->getComponentsData() as $comp_data )
 			case 'id':
 				$comp_id= $val;
 				break;
+
+			case 'datasource':
+				$datasource= $val;
+				break;
 			}
 		}
 
 		$c->setPropertyValue($name, $val);
+	}
+
+	// load datasource
+	if( isset($datasource) )
+	{
+		$ds= $storage->getDatasource($class_name, $datasource);
+		$c->setDatasource($ds);
 	}
 
 	$page->addComponent($c);
@@ -148,26 +163,6 @@ foreach( $storage->getComponentsData() as $comp_data )
 			$script.= "tmp['{$name}']= unescape(\"{$prop->value}\");\n";
 		}
 
-		// if the component has children
-		// then create them on the js object
-		if( $c->hasProperty('_sub') && (count($c->getPropertyValue('_sub')) > 0)  )
-		{
-			$script.= "tmp._children= new Array();\n";
-
-			foreach( $c->getPropertyValue('_sub') as $child_data )
-			{
-				$script.="tmp._children.push({";
-
-				foreach( $child_data as $name => $val)
-				{
-					$script.= $name . ': "' . $val . '",';
-				}
-
-				$script.=" _v: null });\n";
-			}
-
-		}
-
 		$script.= "tmp.updateContent();";
 
 		$xtpl->concat('ADDED_JS', $script);
@@ -182,8 +177,6 @@ foreach( $storage->getComponentsData() as $comp_data )
 				$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {handle: 'handle', snap: {$CONF['dragdrop_snap']}});
 			");
 		}
-
-
 
 		if( strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false )
 		{
@@ -439,8 +432,7 @@ if( $edit_mode )
 		$script_init_obj= '';
 
 		$script_fillProperty.= "\n{$comp}.prototype.fillPropertyPanel= function(){ ";
-		$script_saveProperty.= "\n{$comp}.prototype.savePropertyPanel= function(){
-									this._children= null;";
+		$script_saveProperty.= "\n{$comp}.prototype.savePropertyPanel= function(){ ";
 
 		foreach($tmp->getProperties() as $prop)
 		{
@@ -481,7 +473,7 @@ if( $edit_mode )
 			}
 
 		}
-
+/*
 		foreach($tmp->getPropertiesArray() as $name => $prop_arr)
 		{
 			foreach($prop_arr as $prop_name)
@@ -559,7 +551,7 @@ if( $edit_mode )
 				";
 			}
 		}
-
+*/
 		$script_fillProperty.= "};";
 
 		if( $comp != 'Page' )

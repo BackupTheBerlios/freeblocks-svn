@@ -11,7 +11,7 @@ class Menu extends Component
 	{
 		parent::__construct();
 
-		$this->addPropertyArray('item', array( 'label', 'page', 'url') );
+		//$this->addPropertyArray('item', array( 'label', 'page', 'target') );
 
 		// tell the base class we handle children nodes
 		$this->_has_children_handler= true;
@@ -26,23 +26,25 @@ class Menu extends Component
 	{
 		$content= "";
 
-		if( $this->hasProperty('_sub') )
+		if( $this->hasDatasource() )
 		{
-			foreach($this->getPropertyValue('_sub') as $post)
+			$ds= $this->getDatasource();
+
+			foreach( $ds->content as $item )
 			{
-				$label= isset($post['label'])?$post['label']:'no label';
-				$url= isset($post['url'])?$post['url']:'';
-				$page= isset($post['page'])?$post['page']:'';
+				$label= isset($item['label'])?$item['label']:'no label';
+				$target= isset($item['target'])?$item['target']:'';
+				$page= isset($item['page'])?$item['page']:'';
 
 				$this->xtpl->assign('LABEL', $label);
 
 				if( $page == 'true' )
 				{
-					$this->xtpl->assign('URL', '?page=' . $url);
+					$this->xtpl->assign('TARGET', '?page=' . $target);
 				}
 				else
 				{
-					$this->xtpl->assign('URL', $url);
+					$this->xtpl->assign('TARGET', $target);
 				}
 
 				$this->xtpl->parse('main.item');

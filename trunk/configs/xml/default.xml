@@ -1,16 +1,35 @@
 <?xml version="1.0"?>
 <config>
-<page name="index" template="index.xtpl">
-<component x="0" y="0" type="StaticText" id="comp_6" text="quatre" width="auto" position="container" parent="left_container"/>
-<component x="0.5" y="0" text="cinq" width="auto" position="container" type="StaticText" id="comp_2" parent="middle_container"/>
-<component x="-0.5" y="0" text="six" width="auto" position="container" type="StaticText" id="comp_5" parent="middle_container"/>
-<component x="-0.5" y="0" text="sept" width="auto" position="container" type="StaticText" id="comp_4" parent="right_container"/>
-<component x="476.5" y="153" text="trois" width="auto" position="absolute" type="StaticText" id="comp_1"/>
-<component x="400.5" y="291" text="deux" width="auto" position="absolute" type="StaticText" id="comp_3"/>
-<component x="530" y="250" type="StaticText" id="comp_7" text="un" width="auto" position="absolute" parent="left_container"/>
-</page>
 
-<page name="page2" template="index.xtpl">
-<component type="StaticText"/>
-</page>
+<datasources>
+	<data type="user" id="data_user_1">
+		<item login="schmurfy" pw=""/>
+		<item login="toto" pw=""/>
+	</data>
+	<data type="menu" id="data_menu_1">
+		<item label="hfgh" page="true" target="page2"/>
+		<item label="fghghhhh" page="false" target="hhh"/>
+	</data>
+	<data type="menu" id="data_menu_2">
+		<item label="Index" page="true" target="index"/>
+		<item label="Page2" page="true" target="page2"/>
+		<item label="Page3" page="true" target="page3"/>
+	</data>
+</datasources>
+<pages>
+	<page name="index" template="index.xtpl">
+	<component x="0" y="0" preview="true" datasource="data_menu_1" width="auto" position="container" type="Menu" id="comp_10" parent="left_container" />
+	<component x="335" y="325" preview="false" datasource="data_menu_2" width="auto" position="absolute" type="Menu" id="comp_9"/>
+	</page>
+
+	<page name="page2" template="index.xtpl">
+	<component x="0" y="0" preview="true" width="auto" position="container" type="Menu" id="comp_10" parent="left_container">
+	<item label="index" url="%3Fpage%3Dindex"/>
+	</component>
+	<component x="0" y="0" type="StaticText" id="comp_1" preview="true" width="auto" position="container" text="%3Cimg%20width%3D%2750%27%20height%3D%2738%27%20border%3D%270%27%20class%3D%27float_left%27%20title%3D%27172.jpg%27%20alt%3D%27172.jpg%27%20src%3D%27user_images%2F172.jpg%27%20%2F%3Eundef%20sf%20ds%20f%20sd%20f%20sd%20f%20%3Cbr%20%2F%3ESdfdsfsdf%3Cbr%20%2F%3ESFsdfsdfdfs%20sf%20%3Cbr%20%2F%3EFsf%20sfsdfsdf%20%3Cbr%20%2F%3ESFsd%20f%20sfs%3Cbr%20%2F%3E" parent="middle_container"/>
+	</page>
+	<page name="page3" template="default.xtpl">
+	<component x="0" y="0" type="StaticText" id="comp_1" preview="true" width="auto" position="container" text="toto" parent="left_container"/>
+	</page>
+</pages>
 </config>
