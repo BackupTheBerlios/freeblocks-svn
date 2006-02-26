@@ -41,7 +41,7 @@ DragContainer.prototype= {
 				onDragEnd: this.onDragEnd
 			});
 
-			drag.activeContainer= htmlElement;
+			drag.activeContainer= this;
 
 			// tracks if the item is currently outside all containers
 			DragDrop.wasOutside= false;
@@ -52,7 +52,10 @@ DragContainer.prototype= {
 
 	onDragStart: function(nwPosition, sePosition, nwOffset, seOffset) {
 
-		log('onStart');
+		Element.setStyle(document.getElementsByTagName('body').item(0), {
+			MozUserSelect: 'none'
+		});
+		document.onselectstart= function(){ return false; };
 
 		// update all container bounds, since they may have changed
 		// on a previous drag
@@ -62,8 +65,8 @@ DragContainer.prototype= {
 		{
 			var container= DragDrop.containers[i];
 
-			container.northwest= Coordinates.northwestOffset( container, true );
-			container.southeast= Coordinates.southeastOffset( container, true );
+			//container.northwest= Coordinates.northwestOffset( container, true );
+			//container.southeast= Coordinates.southeastOffset( container, true );
 
 			// activate each container
 			container.options.onActivate();
@@ -81,7 +84,8 @@ DragContainer.prototype= {
 	onDrag: function(nwPosition, sePosition, nwOffset, seOffset){
 
 		var element= this._top.element;
-		var parent= element.parentNode;
+		//var parent= element.parentNode;
+		var parent= this._top.activeContainer;
 
 		// check if we were nowhere
 		if( DragDrop.wasOutside ){
@@ -91,24 +95,18 @@ DragContainer.prototype= {
 			{
 				var container= DragDrop.containers[i];
 
-				//log('within ' + container.id + ': ' + (DragUtils.within(container, element)?'true':'false') + '  ,group: ' + container.group + ' ' + parent_group);
-
 				if( DragUtils.within(container.element, element) && (container.group == parent_group)) {
 
+					log('onDragOver(' + container.element.id + ')');
 					// we're inside this one
 					container.options.onDragOver();
 					DragDrop.wasOutside= false;
-					element.activeContainer= container;
+					element._dragObj.activeContainer= container;
 
-					/*
-					// since wasOutside was true, the current parent is a
-					// temporary clone of some previous container node and
-					// it needs to be removed from the document
-					var tempParent= this.parentNode;
-					tempParent.removeChild( this );
-					container.appendChild( this );
-					tempParent.parentNode.removeChild( tempParent );
-					*/
+					// change parent
+					element.parentNode.removeChild( element );
+					container.element.appendChild( element );
+
 					break;
 				}
 			}
@@ -118,74 +116,49 @@ DragContainer.prototype= {
 				return;
 			}
 		}
-		// check if we're outside our parent's bounds
-		else if( !DragUtils.within(parent, element) )
+		// check if we're outside the last container we were in
+		else if( !DragUtils.within(parent.element, element) )
 		{
-			log('onDragOut - outside parent');
+			log('onDragOut(' + parent.id + ')');
 
 			// we left the old container
-			element._dragObj.activeContainer._contObj.options.onDragOut();
+			parent.options.onDragOut();
 
-			//parent._contObj.options.onDragOut();
-			//parent._contObj.options.onActivate();
 			DragDrop.wasOutside= true;
 
-			// check if we're inside a new container's bounds
-			for(var i= 0; i< DragDrop.containers.length; i++)
-			{
-				var container= DragDrop.containers[i];
+			// we have nothing more to do
+			return;
+		}
 
-				if( DragUtils.within(container.element, element) && (container.group == parent_group)) {
-					// we're inside this one
-					container.options.onDragOver();
-					DragDrop.wasOutside= false;
-					parent.removeChild( element );
-					container.element.appendChild( element );
-					break;
-				}
+		if( !DragDrop.wasOutside )
+		{
+			// if we get here, we're inside some container bounds, so we do
+			// everything the original dragsort script did to swap us into the
+			// correct position
+
+			//var parent= this.parentNode;
+
+			var item= element;
+			var next= DragUtils.nextItem(item);
+			while (next != null && element.offsetTop >= next.offsetTop - 2) {
+				var item = next;
+				var next = DragUtils.nextItem(item);
 			}
-
-			// if we're not in any container now, make a temporary clone of
-			// the previous container node and add it to the document
-			if( DragDrop.wasOutside ){
-				/*
-				var tempParent= parent.cloneNode( false );
-				parent.removeChild( element );
-				tempParent.appendChild( element );
-				// body puts a border or item at bottom of page if do not have this
-				tempParent.style.border= 0;
-				document.getElementsByTagName( "body" ).item(0).appendChild( tempParent );
-				*/
+			if (element != item) {
+				DragUtils.swap(element, next);
 				return;
 			}
-		}
 
-		// if we get here, we're inside some container bounds, so we do
-		// everything the original dragsort script did to swap us into the
-		// correct position
-
-		//var parent= this.parentNode;
-
-		var item= element;
-		var next= DragUtils.nextItem(item);
-		while (next != null && element.offsetTop >= next.offsetTop - 2) {
-			var item = next;
-			var next = DragUtils.nextItem(item);
-		}
-		if (element != item) {
-			DragUtils.swap(element, next);
-			return;
-		}
-
-		var item = element;
-		var previous = DragUtils.previousItem(item);
-		while (previous != null && element.offsetTop <= previous.offsetTop + 2) {
-			var item= previous;
-			var previous= DragUtils.previousItem(item);
-		}
-		if (element != item) {
-			DragUtils.swap(element, item);
-			return;
+			var item = element;
+			var previous = DragUtils.previousItem(item);
+			while (previous != null && element.offsetTop <= previous.offsetTop + 2) {
+				var item= previous;
+				var previous= DragUtils.previousItem(item);
+			}
+			if (element != item) {
+				DragUtils.swap(element, item);
+				return;
+			}
 		}
 	},
 
@@ -200,10 +173,11 @@ DragContainer.prototype= {
 			DragDrop.containers[i].options.onDeActivate();
 		}
 
+		/*
 		// if the drag ends and we're still outside all containers
 		// it's time to remove ourselves from the document or add
 		// to the trash bin
-		if (this.wasOutside) {
+		if( DragDrop.wasOutside ) {
 			var container;
 			for(var i= 0; i< DragDrop.containers.length; i++)
 			{
@@ -224,11 +198,14 @@ DragContainer.prototype= {
 			//container.appendChild( this );
 			return;
 		}
+		*/
 
 		parent._contObj.options.onDragOut();
 		parent._contObj.options.onDragDrop();
 		element.style["top"] = "0px";
 		element.style["left"] = "0px";
+
+		document.onselectstart= null;
 	}
 
 };
