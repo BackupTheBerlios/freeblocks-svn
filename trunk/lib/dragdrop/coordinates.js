@@ -76,7 +76,10 @@ Coordinate.prototype.max = function(that) {
 }
 
 Coordinate.prototype.constrain = function(min, max) {
-	if (min.x > max.x || min.y > max.y) return this;
+	if( (min.x > max.x) || (min.y > max.y) )
+	{
+		return this;
+	}
 
 	var x = this.x;
 	var y = this.y;
@@ -90,6 +93,7 @@ Coordinate.prototype.constrain = function(min, max) {
 }
 
 Coordinate.prototype.reposition = function(element) {
+	//log('reposition(' + this.x + 'px, ' + this.y + 'px)');
 	element.style["top"] = this.y + "px";
 	element.style["left"] = this.x + "px";
 }

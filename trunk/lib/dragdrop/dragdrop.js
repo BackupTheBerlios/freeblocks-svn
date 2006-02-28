@@ -2,6 +2,7 @@
 Adapted from the sortable lists example by Tim Taylor
 http://tool-man.org/examples/sorting.html
 Modified by Tom Westcott : http://www.cyberdummy.co.uk
+Heavily modified by Julien Ammous : http://freeblocks.berlios.de
 **********************************************************/
 
 function log(txt){
@@ -27,6 +28,7 @@ DragContainer.prototype= {
 			onDragDrop: function(){},
 			onActivate: function(){},
 			onDeActivate: function(){},
+			allowOutsideContainers: false,
 			_top: this
 		}, arguments[2] || {});
 
@@ -34,73 +36,182 @@ DragContainer.prototype= {
 
 		for( var i= 0; i< items.length; i++)
 		{
-			var drag= new DraggableItem(items[i], {
-				threshold: 5,
-				onDragStart: this.onDragStart,
-				onDrag: this.onDrag,
-				onDragEnd: this.onDragEnd
-			});
-
-			drag.activeContainer= this;
-
-			// tracks if the item is currently outside all containers
-			DragDrop.wasOutside= false;
+			DragDrop.addDraggable(items[i], this, group);
 		}
 
 		DragDrop.containers.push(this);
+	}
+};
+
+var DragDrop= {
+	containers: null,
+	firstContainer : null,
+	lastContainer : null,
+	parent_group : null,
+	enter_container_key: null,
+	key_pressed: false,
+
+	KEY_CTRL: 17,
+	KEY_C: 67,
+
+	addDraggable: function(element, parent, group){
+		var drag= new DraggableItem(element, Object.extend({
+			threshold: 5,
+			onDragStart: this.onDragStart,
+			onDrag: this.onDrag,
+			onDragEnd: this.onDragEnd,
+			container_group: group
+		}, arguments[3] || {}));
+
+		// tracks if the item is currently outside all containers
+		drag.activeContainer= parent;
+		if( parent != null )
+		{
+			drag.originalContainer= parent.element;
+		}
+		else
+		{
+			drag.originalContainer= null;
+		}
 	},
 
-	onDragStart: function(nwPosition, sePosition, nwOffset, seOffset) {
+	onKeyUpDown: function(event){
+/*
+		if( event.type == 'keydown' )
+		{
+			log('down: ' + event.keyCode);
+		}
+*/
+		// enter this condition if:
+		//    key_pressed= true  && event is keyup
+		// or key_pressed= false && event is keydown
+		// and if we are dragging something
+		if( (DragDrop.key_pressed == (event.type=="keyup")) && ( (event.type=="keyup") || (Drag.dragged_obj != null)) )
+		{
+			if( (DragDrop.enter_container_key != null) && (event.keyCode==DragDrop.enter_container_key) )
+			{
+				DragDrop.key_pressed= (event.type=="keydown")?true:false;
+			}
 
-		Element.setStyle(document.getElementsByTagName('body').item(0), {
-			MozUserSelect: 'none'
-		});
-		document.onselectstart= function(){ return false; };
+			if( DragDrop.key_pressed == (event.type=="keydown") )
+			{
+				if( event.type=="keyup" ){
+					DragDrop.deActivateTargetContainers();
+				}
+				else {
+					DragDrop.activateTargetContainers();
+				}
 
-		// update all container bounds, since they may have changed
-		// on a previous drag
-		//
-		// could be more smart about when to do this
+				if( Drag.dragged_obj != null )
+				{
+					Drag.onMouseMove(event);
+				}
+
+				Event.stop(event);
+			}
+		}
+	},
+
+	onDragStart: function(draggable_obj, event) {
+
+		var element= draggable_obj.element;
+		var parent= draggable_obj.activeContainer;
+
+		log('onDragStart(p: '+parent+', e: '+element+')');
+
+		if( DragDrop.canEnterContainer() )
+		{
+			DragDrop.activateTargetContainers();
+		}
+
+		DragDrop.parent_group= element._dragObj.options.container_group;
+
+		if( parent != null )
+		{
+			// item starts out over current parent
+			parent.options.onDragOver();
+		}
+	},
+
+	activateTargetContainers: function()
+	{
+		// activate each container of item group
 		for(var i= 0; i< DragDrop.containers.length; i++)
 		{
 			var container= DragDrop.containers[i];
 
-			//container.northwest= Coordinates.northwestOffset( container, true );
-			//container.southeast= Coordinates.southeastOffset( container, true );
-
-			// activate each container
-			container.options.onActivate();
+			if( Drag.dragged_obj.options.container_group == container.group )
+			{
+				container.options.onActivate();
+			}
 		}
-
-		var element= this._top.element;
-		var parent= element.parentNode;
-
-		// item starts out over current parent
-		parent._contObj.options.onDragOver();
-		parent_id= parent.id;
-		parent_group= parent._contObj.group;
 	},
 
-	onDrag: function(nwPosition, sePosition, nwOffset, seOffset){
+	deActivateTargetContainers: function()
+	{
+		// deactivate each container of item group
+		for(var i= 0; i< DragDrop.containers.length; i++)
+		{
+			var container= DragDrop.containers[i];
 
-		var element= this._top.element;
-		//var parent= element.parentNode;
-		var parent= this._top.activeContainer;
+			if( (Drag.dragged_obj == null) || (Drag.dragged_obj.options.container_group == container.group) )
+			{
+				container.options.onDeActivate();
+			}
+		}
+	},
+
+	canEnterContainer: function(){
+		var ret= false;
+		if( DragDrop.enter_container_key == null )
+		{
+			ret= true;
+		}
+		else
+		{
+			ret= DragDrop.key_pressed;
+		}
+
+		return ret;
+	},
+
+	onDrag: function(draggable_obj, event){
+
+		var element= draggable_obj.element;
+		var parent= draggable_obj.activeContainer;
+
+		// check if we're outside the last container we were in
+		if( (parent != null) && ( !DragDrop.canEnterContainer() || !DragUtils.within(parent.element, element)) )
+		{
+			log('onDragOut('+draggable_obj+',' + parent + ')');
+
+			// we left the old container
+			parent.options.onDragOut();
+
+			draggable_obj.activeContainer= null;
+
+			if( parent.options.allowOutsideContainers == true )
+			{
+				// change parent to body
+				element.style.position= 'relative';
+				element.parentNode.removeChild( element );
+				document.getElementsByTagName('body').item(0).appendChild( element );
+			}
+		}
 
 		// check if we were nowhere
-		if( DragDrop.wasOutside ){
-
+		if( (parent == null) && DragDrop.canEnterContainer() )
+		{
 			// check each container to see if in its bounds
 			for(var i= 0; i< DragDrop.containers.length; i++)
 			{
 				var container= DragDrop.containers[i];
 
-				if( DragUtils.within(container.element, element) && (container.group == parent_group)) {
+				if( DragUtils.within(container.element, element) && (container.group == DragDrop.parent_group)) {
 
 					log('onDragOver(' + container.element.id + ')');
 					// we're inside this one
 					container.options.onDragOver();
-					DragDrop.wasOutside= false;
 					element._dragObj.activeContainer= container;
 
 					// change parent
@@ -110,33 +221,14 @@ DragContainer.prototype= {
 					break;
 				}
 			}
-			// we're still not inside the bounds of any container
-			if( this.wasOutside )
-			{
-				return;
-			}
-		}
-		// check if we're outside the last container we were in
-		else if( !DragUtils.within(parent.element, element) )
-		{
-			log('onDragOut(' + parent.id + ')');
-
-			// we left the old container
-			parent.options.onDragOut();
-
-			DragDrop.wasOutside= true;
-
-			// we have nothing more to do
-			return;
 		}
 
-		if( !DragDrop.wasOutside )
+
+		if( element._dragObj.activeContainer != null )
 		{
 			// if we get here, we're inside some container bounds, so we do
 			// everything the original dragsort script did to swap us into the
 			// correct position
-
-			//var parent= this.parentNode;
 
 			var item= element;
 			var next= DragUtils.nextItem(item);
@@ -160,102 +252,34 @@ DragContainer.prototype= {
 				return;
 			}
 		}
+
 	},
 
-	onDragEnd: function(nwPosition, sePosition, nwOffset, seOffset){
+	onDragEnd: function(draggable_obj, event){
 
-		var element= this._top.element;
-		var parent= element.parentNode;
+		var element= draggable_obj.element;
+		var parent= draggable_obj.activeContainer;
 
-		for(var i= 0; i< DragDrop.containers.length; i++)
+		DragDrop.deActivateTargetContainers();
+
+		if( parent != null )
 		{
-			// deactivate each container
-			DragDrop.containers[i].options.onDeActivate();
+			parent.options.onDragOut();
+			parent.options.onDragDrop();
+			element.style["top"] = "0px";
+			element.style["left"] = "0px";
 		}
+		// move the item back to the container it was in
+		else if( element._dragObj.options.allowOutsideContainers == false )
+		{
+			var container= element._dragObj.originalContainer;
 
-		/*
-		// if the drag ends and we're still outside all containers
-		// it's time to remove ourselves from the document or add
-		// to the trash bin
-		if( DragDrop.wasOutside ) {
-			var container;
-			for(var i= 0; i< DragDrop.containers.length; i++)
-			{
-				container= DragDrop.containers[i];
-
-				if( container.id == parent_id )
-				{
-					break;
-				}
-			}
-
-			DragDrop.wasOutside= false;
-			this.parentNode.removeChild( this );
-			container.appendChild( this );
-			this.style["top"] = "0px";
-			this.style["left"] = "0px";
-			//var container = DragDrop.firstContainer;
-			//container.appendChild( this );
+			element._dragObj.activeContainer= container._contObj;
+			container.appendChild( element );
+			element.style["top"]= "0px";
+			element.style["left"]= "0px";
 			return;
 		}
-		*/
-
-		parent._contObj.options.onDragOut();
-		parent._contObj.options.onDragDrop();
-		element.style["top"] = "0px";
-		element.style["left"] = "0px";
-
-		document.onselectstart= null;
-	}
-
-};
-
-var DragDrop= {
-	containers: null,
-	firstContainer : null,
-	lastContainer : null,
-	parent_id : null,
-	parent_group : null,
-
-	serData : function ( group, theid ) {
-		var container = DragDrop.firstContainer;
-		var j = 0;
-		var string = "";
-
-		while (container != null) {
-			if(theid != null && container.id != theid)
-			{
-				container = container.nextContainer;
-				continue;
-			}
-
-			if(group != null && container.group != group)
-			{
-				container = container.nextContainer;
-				continue;
-			}
-
-			j ++;
-			if(j > 1)
-			{
-				string += ":";
-			}
-			string += container.id;
-
-			var items = container.getElementsByTagName( "li" );
-			string += "(";
-			for (var i = 0; i < items.length; i++) {
-				if(i > 0)
-				{
-					string += ",";
-				}
-				string += items[i].id;
-			}
-			string += ")";
-
-			container = container.nextContainer;
-		}
-		return string;
 	}
 
 };
@@ -303,3 +327,9 @@ var DragUtils = {
 	             child_pos[0] + element.offsetWidth  >= parent_pos[0] && child_pos[0] + element.offsetWidth  < parent_pos[0] + parent.offsetWidth));
 	}
 };
+
+
+Event.observe(document, "keydown", DragDrop.onKeyUpDown);
+Event.observe(document, "keyup", DragDrop.onKeyUpDown);
+
+

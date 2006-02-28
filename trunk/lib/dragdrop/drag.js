@@ -13,6 +13,8 @@
  being moved changed parents it would be off so changed to
  get the absolute offset (recursive northwestOffset).
 
+ Heavily modified by Julien Ammous : http://freeblocks.berlios.de
+
  **********************************************************/
 
 var DraggableItem= Class.create();
@@ -67,7 +69,18 @@ DraggableItem.prototype= {
 		{
 			event= Drag.fixEvent(event);
 			var element= Event.element(event);
-			var obj= element._dragObj;
+			var obj;
+
+			// we are on the handle
+			if( element._dragObj == null )
+			{
+				obj= element.parentNode._dragObj;
+			}
+			else
+			{
+				obj= element._dragObj;
+			}
+
 			Drag.dragged_obj= obj;
 
 
@@ -84,7 +97,7 @@ DraggableItem.prototype= {
 			// TODO: need a better name, but don't yet understand how it
 			// participates in the magic while dragging
 			obj.dragCoordinate= mouse;
-			obj.options.onDragStart(nwPosition, sePosition, nwOffset, seOffset);
+			obj.options.onDragStart(obj, event);
 
 			// TODO: need better constraint API
 			if( obj.options.minX != null )
@@ -106,6 +119,8 @@ DraggableItem.prototype= {
 			Event.observe(document, "mousemove", 	Drag.onMouseMove);
 			Event.observe(document, "mouseup", 		Drag.onMouseUp);
 
+			// prevent selection start
+			Event.stop(event);
 			return false;
 		}
 	}
@@ -146,21 +161,18 @@ var Drag = {
 
 	onMouseMove : function(event) {
 		event = Drag.fixEvent(event);
-
 		var obj= Drag.dragged_obj;
 		var element= obj.element;
 
-		var mouse = event.windowCoordinate;
 
-		var nwOffset = Coordinates.northwestOffset(element, true);
+		var mouse= event.windowCoordinate;
 
-		var nwPosition = Coordinates.northwestPosition(element);
-		var sePosition = Coordinates.southeastPosition(element);
-		var seOffset = Coordinates.southeastOffset(element, true);
+		var nwOffset= Coordinates.northwestOffset(element, true);
 
+		var nwPosition= Coordinates.northwestPosition(element);
+		var sePosition= Coordinates.southeastPosition(element);
+		var seOffset= Coordinates.southeastOffset(element, true);
 
-
-		Drag.showStatus(mouse, nwPosition, sePosition, nwOffset, seOffset);
 
 		if( !Drag.isDragging ) {
 			if( obj.options.threshold > 0 ){
@@ -185,11 +197,14 @@ var Drag = {
 			Element.setOpacity(element, 0.75);
 		}
 
-		// TODO: need better constraint API
-		var adjusted= mouse.constrain(obj.mouseMin, obj.mouseMax);
-		nwPosition= nwPosition.plus(adjusted.minus(obj.dragCoordinate));
-		nwPosition.reposition(element);
-		obj.dragCoordinate= adjusted;
+		if( mouse.x != null )
+		{
+			// TODO: need better constraint API
+			var adjusted= mouse.constrain(obj.mouseMin, obj.mouseMax);
+			nwPosition= nwPosition.plus(adjusted.minus(obj.dragCoordinate));
+			nwPosition.reposition(element);
+			obj.dragCoordinate= adjusted;
+		}
 
 		// once dragging has started, the position of the group
 		// relative to the mouse should stay fixed.  They can get out
@@ -202,7 +217,7 @@ var Drag = {
 
 		// changed to be recursive/use absolute offset for corrections
 		var offsetBefore= Coordinates.northwestOffset(element, true);
-		obj.options.onDrag(nwPosition, sePosition, nwOffset, seOffset);
+		obj.options.onDrag(obj, event);
 		var offsetAfter= Coordinates.northwestOffset(element, true);
 
 		if( !offsetBefore.equals(offsetAfter) ){
@@ -229,7 +244,7 @@ var Drag = {
 		Event.stopObserving(document, "mousemove", 	Drag.onMouseMove);
 		Event.stopObserving(document, "mouseup", 	Drag.onMouseUp);
 
-		obj.options.onDragEnd(nwPosition, sePosition, nwOffset, seOffset);
+		obj.options.onDragEnd(obj, event);
 
 		if( Drag.isDragging ){
 			// restoring zIndex before opacity avoids visual flicker in Firefox
