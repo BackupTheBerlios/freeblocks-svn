@@ -16,10 +16,10 @@ DragContainer.prototype= {
 	element: null,
 	group: null,
 
-	initialize: function(htmlElement, group){
+	initialize: function(htmlElement/*, group, options, child_options*/){
 		htmlElement= $(htmlElement);
 
-		this.group= group;
+		this.group= arguments[1] || 'default';
 		this.element= htmlElement;
 		this.element._contObj= this;
 		this.options= Object.extend({
@@ -32,11 +32,15 @@ DragContainer.prototype= {
 			_top: this
 		}, arguments[2] || {});
 
-		var items= htmlElement.getElementsByTagName( "div" );
+		var items= this.element.getElementsByTagName( "div" );
 
 		for( var i= 0; i< items.length; i++)
 		{
-			DragDrop.addDraggable(items[i], this, group);
+			// only direct children
+			if( items[i].parentNode === this.element )
+			{
+				DragDrop.addDraggable(items[i], this, this.group, arguments[3] || {});
+			}
 		}
 
 		DragDrop.containers.push(this);
@@ -54,7 +58,7 @@ var DragDrop= {
 	KEY_CTRL: 17,
 	KEY_C: 67,
 
-	addDraggable: function(element, parent, group){
+	addDraggable: function(element, parent, group /*, options */ ){
 		var drag= new DraggableItem(element, Object.extend({
 			threshold: 5,
 			onDragStart: this.onDragStart,
@@ -73,6 +77,8 @@ var DragDrop= {
 		{
 			drag.originalContainer= null;
 		}
+
+		return drag;
 	},
 
 	onKeyUpDown: function(event){

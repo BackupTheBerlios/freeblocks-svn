@@ -40,12 +40,25 @@ DraggableItem.prototype= {
 			thresholdX: 0,
 
 			onDragStart: function(){},
+			onDragStart2: function(){},
 			onDragEnd: function(){},
+			onDragEnd2: function(){},
 			onDrag: function(){},
+			onDrag2: function(){},
 
 			_top: this
 
 		}, arguments[1] || {});
+
+		if( this.options.handle && (typeof this.options.handle == 'string') )
+		{
+			this.options.handle= Element.childrenWithClassName(this.element, this.options.handle)[0];
+		}
+
+		if( !this.options.handle )
+		{
+			this.options.handle= $(this.options.handle) || this.element;
+		}
 
 		Event.observe(this.options.handle, "mousedown", this.onMouseDown);
 	},
@@ -98,6 +111,7 @@ DraggableItem.prototype= {
 			// participates in the magic while dragging
 			obj.dragCoordinate= mouse;
 			obj.options.onDragStart(obj, event);
+			obj.options.onDragStart2(obj, event);
 
 			// TODO: need better constraint API
 			if( obj.options.minX != null )
@@ -218,6 +232,7 @@ var Drag = {
 		// changed to be recursive/use absolute offset for corrections
 		var offsetBefore= Coordinates.northwestOffset(element, true);
 		obj.options.onDrag(obj, event);
+		obj.options.onDrag2(obj, event);
 		var offsetAfter= Coordinates.northwestOffset(element, true);
 
 		if( !offsetBefore.equals(offsetAfter) ){
@@ -245,6 +260,7 @@ var Drag = {
 		Event.stopObserving(document, "mouseup", 	Drag.onMouseUp);
 
 		obj.options.onDragEnd(obj, event);
+		obj.options.onDragEnd2(obj, event);
 
 		if( Drag.isDragging ){
 			// restoring zIndex before opacity avoids visual flicker in Firefox

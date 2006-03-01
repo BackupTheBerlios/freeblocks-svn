@@ -76,7 +76,7 @@ var rules= {
 			{
 				if( (typeof page[prop] != "function") && (prop.charAt(0) != '_'))
 				{
-					data+= prop + '="' + escape(page[prop].replace(/"/g, "'")) + '" ';
+					data+= prop + '="' + escape(page[prop].replace(/"/g, "'")) + '" '; // "
 				}
 			}
 
@@ -102,39 +102,11 @@ var rules= {
 						if( (typeof obj[property] != "function") && (property.charAt(0) != '_') &&
 							(property != "x") && (property != "y") )
 						{
-							data+= property + '="' + escape(obj[property].replace(/"/g, "'")) + '" ';
+							data+= property + '="' + escape(obj[property].replace(/"/g, "'")) + '" '; // "
 						}
 					}
 
-
-
-					// if node has children then include them as well
-					if( obj['_children'] != null )
-					{
-						data+= '>\n';
-
-						for(var j= 0; j< obj['_children'].length; j++)
-						{
-							var child= obj['_children'][j];
-							data+= "<" + child['tagName'] + " ";
-
-							for(prop in child)
-							{
-								if( (prop != "tagName") && (prop != "_v") )
-								{
-									data+= prop + '="' + escape(child[prop]) + '" ';
-								}
-							}
-
-							data+= " />\n";
-						}
-
-						data+= '</component>\n';
-					}
-					else
-					{
-						data+= '/>\n';
-					}
+					data+= '/>\n';
 				}
 			}
 

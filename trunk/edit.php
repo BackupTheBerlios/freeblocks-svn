@@ -86,67 +86,38 @@ $xtpl= new XTemplate($filename);
 // and load associated datasources
 foreach( $storage->getComponentsData() as $comp_data )
 {
-	$class_name= $comp_data['type'];
-	$c= new $class_name();
+	$comp_class= $comp_data['type'];
+	$c= new $comp_class();
 
-	unset($x, $y, $parent, $comp_id);
-
-	$x= $y= '';
+	$CACHE= array();
 
 	foreach( $comp_data as $name => $val )
 	{
-		if( !in_array($name, array('type')) )
+		if( in_array($name, array('x', 'y', 'width', 'parent', 'id', 'datasource')) )
 		{
-			switch($name)
-			{
-			case 'x':
-				$x= $val;
-				break;
-
-			case 'y':
-				$y= $val;
-				break;
-
-			case 'width':
-				$width= $val;
-				break;
-
-			case 'parent':
-				$parent= strtoupper($val);
-				break;
-
-			case 'id':
-				$comp_id= $val;
-				break;
-
-			case 'datasource':
-				$datasource= $val;
-				break;
-			}
+			$CACHE[$name]= $val;
 		}
 
 		$c->setPropertyValue($name, $val);
 	}
 
 	// load datasource
-	if( isset($datasource) )
+	if( isset($CACHE['datasource']) )
 	{
-		$ds= $storage->getDatasource($class_name, $datasource);
+		$ds= $storage->getDatasource($comp_class, $CACHE['datasource']);
 		$c->setDatasource($ds);
 	}
 
 	$page->addComponent($c);
 
-
-	$comp_class= get_class($c);
-
 	$script="
 		tmp= new {$comp_class}();
-		tmp.setup( $('{$comp_id}') );
-		new Effect.Move($('{$comp_id}'), {
+		tmp.setup( $('{$CACHE['id']}') );
+
+		new Effect.Move( tmp._div, {
 			mode: 'absolute',
-			x: {$x},
-			y: {$y}
+			x: {$CACHE['x']},
+			y: {$CACHE['y']}
 		});
 
 	";
@@ -164,38 +135,34 @@ foreach( $storage->getComponentsData() as $comp_data )
 	switch( $c->getPropertyValue('position') )
 	{
 	case 'fixed':
-		$xtpl->concat('ADDED_JS', "
-			$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {handle: 'handle', snap: {$CONF['dragdrop_snap']}});
-		");
+		$xtpl->concat('ADDED_JS', "DragDrop.addDraggable($('{$CACHE['id']}'), null, 'global_group', {handle: 'handle'});");
 
 		if( strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false )
 		{
 			$c->setCSSStyle('position', 'absolute');
-			$c->setCSSStyle('left', "expression( {$x} + ( ignoreMe2 = document.body.scrollLeft ) + 'px' )");
-			$c->setCSSStyle('top', "expression( {$y} + ( ignoreMe = document.body.scrollTop ) + 'px' )");
+			$c->setCSSStyle('left', "expression( {$CACHE['x']} + ( ignoreMe2 = document.body.scrollLeft ) + 'px' )");
+			$c->setCSSStyle('top', "expression( {$CACHE['y']} + ( ignoreMe = document.body.scrollTop ) + 'px' )");
 		}
 		else
 		{
 			$c->setCSSStyle('position', 'fixed');
-			$c->setCSSStyle('left', $x . 'px');
-			$c->setCSSStyle('top', $y . 'px');
+			$c->setCSSStyle('left', $CACHE['x'] . 'px');
+			$c->setCSSStyle('top', $CACHE['y'] . 'px');
 		}
 
 		$c->setCSSStyle('z-index', 500);
-		$c->setCSSStyle('width', $width . 'px');
+		$c->setCSSStyle('width', $CACHE['width'] . 'px');
 
 		$xtpl->concat('ADDED_CSS', $c->getCSS());
 		$xtpl->concat('BODY', $c->renderComponent());
 		break;
 
 	case 'absolute':
-		$xtpl->concat('ADDED_JS', "
-			$('{$comp_id}').obj._drag_obj= new Draggable('{$comp_id}', {snap: {$CONF['dragdrop_snap']}, handle: 'handle'});
-		");
+		$xtpl->concat('ADDED_JS', "DragDrop.addDraggable($('{$CACHE['id']}'), null, 'global_group', {handle: 'handle'});");
 
 		$c->setCSSStyle('position', 'absolute');
-		$c->setCSSStyle('left', $x);
-		$c->setCSSStyle('top', $y);
+		$c->setCSSStyle('left', $CACHE['x']);
+		$c->setCSSStyle('top', $CACHE['y']);
 		$c->setCSSStyle('z-index', 500);
 
 		$xtpl->concat('ADDED_CSS', $c->getCSS());
@@ -203,7 +170,7 @@ foreach( $storage->getComponentsData() as $comp_data )
 		break;
 
 	case 'container':
-		$xtpl->concat($parent, $c->renderComponent());
+		$xtpl->concat( strtoupper($CACHE['parent']), $c->renderComponent());
 		break;
 	}
 }
@@ -215,35 +182,38 @@ $xtpl->concat('TITLE', $page->getPropertyValue('title'));
 $xtpl->concat('HEAD', '<script src="lib/behaviour/behaviour.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>' . "\n");
-$xtpl->concat('HEAD', '<script src="lib/scriptaculous/src/dragdrop.js" type="text/javascript"></script>' . "\n");
+
+// drag and drop
+$xtpl->concat('HEAD', '<script src="lib/dragdrop/coordinates.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="lib/dragdrop/dragdrop.js" type="text/javascript"></script>' . "\n");
+$xtpl->concat('HEAD', '<script src="lib/dragdrop/drag.js" type="text/javascript"></script>' . "\n");
+
 $xtpl->concat('HEAD', '<script src="base/Component.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="override.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script src="base/Datasource.js" type="text/javascript"></script>' . "\n");
 $xtpl->concat('HEAD', '<script type="text/javascript" src="tinymce/jscripts/tiny_mce/tiny_mce.js"></script>' . "\n");
 
-
+// include base css
 $xtpl->concat('HEAD', '<link rel="stylesheet" href="base.css"></link>' . "\n");
 
-// add component specifis css
+// link component specific css and javascript
 foreach($available_components as $comp)
 {
-	$fname= "components/{$comp}/{$comp}.css";
+	$fname_css= "components/{$comp}/{$comp}.css";
+	$fname_js= "components/{$comp}/{$comp}.js";
 
-	if( file_exists($fname) )
-	{
-		$xtpl->concat('HEAD', "<link rel=\"stylesheet\" href=\"{$fname}\"></link>\n");
+	if( file_exists($fname_css) ){
+		$xtpl->concat('HEAD', "<link rel=\"stylesheet\" href=\"{$fname_css}\"></link>\n");
+	}
+
+	if( file_exists($fname_js) ){
+		$xtpl->concat('HEAD', "<script src=\"{$fname_js}\" type=\"text/javascript\"></script>\n");
 	}
 }
 
 
 $xtpl->concat('HEAD', '<link rel="stylesheet" href="edit_mode.css"></link>' . "\n");
-
 $xtpl->concat('TITLE', ' (Edit Mode)');
-
-foreach($available_components as $comp)
-{
-	$xtpl->concat('HEAD', "<script src=\"components/{$comp}/{$comp}.js\" type=\"text/javascript\"></script>\n");
-}
 
 
 // build page bar
@@ -301,7 +271,7 @@ foreach($available_components as $comp)
 	}
 
 	$script.= "
-			tmp._drag_obj= new Draggable(tmp._div.id, {handle: 'handle'});
+			DragDrop.addDraggable(tmp._div, null, 'global_group', {handle: 'handle'});
 			Effect.Center(tmp._div);
 		}
 	";
@@ -458,6 +428,11 @@ foreach( array_merge($available_components, array('Page')) as $comp)
 			break;
 		}
 
+		if( isset($prop->params['show_condition']) )
+		{
+			$script_fillProperty.= " ({$prop->params['show_condition']})?Element.show($('{$comp}_{$prop->name}').parentNode):Element.hide($('{$comp}_{$prop->name}').parentNode);";
+		}
+
 	}
 /*
 	foreach($tmp->getPropertiesArray() as $name => $prop_arr)
@@ -542,6 +517,7 @@ foreach( array_merge($available_components, array('Page')) as $comp)
 
 	if( $comp != 'Page' )
 	{
+	/*
 		// check if position type changed
 		$script_saveProperty.= "
 			var curr_pos= Element.getStyle(this._div, 'position');
@@ -581,6 +557,7 @@ foreach( array_merge($available_components, array('Page')) as $comp)
 				}
 				break;
 			}";
+	*/
 	}
 
 	$script_saveProperty.= '};';

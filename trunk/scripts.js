@@ -33,7 +33,7 @@ function component_clicked(target_div)
 	}
 }
 
-
+/*
 // fix to prevent selection bug under ie
 if (document.all)
 {
@@ -41,6 +41,7 @@ if (document.all)
   	return false;
   };
 }
+*/
 
 function max(a, b)
 {

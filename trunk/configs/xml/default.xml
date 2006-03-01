@@ -18,7 +18,7 @@
 </datasources>
 <pages>
 	<page name="index" template="index.xtpl">
-	<component x="0" y="0" preview="true" datasource="data_menu_1" width="auto" position="container" type="Menu" id="comp_10" parent="left_container" />
+	<component x="0" y="0" preview="true" datasource="data_menu_1" width="auto" position="container" type="Menu" id="comp_10" parent="left_container"/>
 	<component x="335" y="325" preview="false" datasource="data_menu_2" width="auto" position="absolute" type="Menu" id="comp_9"/>
 	</page>
 
@@ -32,4 +32,6 @@
 	<component x="0" y="0" type="StaticText" id="comp_1" preview="true" width="auto" position="container" text="toto" parent="left_container"/>
 	</page>
 </pages>
-</config>
+<page name="index" template="index.xtpl"><component x="0" y="0" preview="true" width="auto" position="container" datasource="data_menu_1" type="Menu" id="comp_10" parent="left_container" jsClass="Menu"/>
+<component x="367" y="294" preview="false" width="auto" position="fixed" datasource="data_menu_2" type="Menu" id="comp_9" jsClass="Menu"/>
+</page></config>

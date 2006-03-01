@@ -163,7 +163,8 @@ abstract class Component extends BaseComponent
 			'values' => array(
 				'container' => 'Container',
 				'absolute' => 'Absolute',
-				'fixed' => 'Fixed')
+				'fixed' => 'Fixed'),
+			'show_condition' => "this._div.parentNode.tagName == 'BODY'"
 		));
 	}
 
