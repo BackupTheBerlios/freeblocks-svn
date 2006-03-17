@@ -48,7 +48,7 @@ Component.prototype= {
 		}
 
 		this._div.obj= this;
-		this._div.onclick= function(){ component_clicked(this) };
+		//this._div.onclick= function(){ component_clicked(this) };
 
 		handle= document.createElement('<div>');
 		handle.className= 'handle';

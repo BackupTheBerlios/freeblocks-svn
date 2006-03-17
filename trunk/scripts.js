@@ -9,7 +9,14 @@ function display_properties(type)
 
 function component_clicked(target_div)
 {
-	if( target_div.obj != lastselected )
+	var force= false;
+	if( arguments[1] ){
+		force= arguments[1];
+	}
+
+	log('force: ' + arguments.length);
+
+	if( (force == true) || (target_div.obj != lastselected) )
 	{
 		displayloading();
 
@@ -21,11 +28,11 @@ function component_clicked(target_div)
 			lastselected.updateContent();
 		}
 
-		display_properties(target_div.obj.type);
-
 		lastselected= target_div.obj;
 		lastselected.fillPropertyPanel();
-		//lastselected._div.className= "component component_selected";
+
+		display_properties(target_div.obj.type);
+
 		Element.addClassName(lastselected._div, 'component_selected');
 		$('disp_comp_id').innerHTML= lastselected._div.id;
 
@@ -215,4 +222,11 @@ Page.prototype.initialize= function(){};
 Page.prototype.updateContent= function(){};
 
 var page= new Page();
+
+// debug
+function log(str) {
+  new Insertion.Bottom( $('logger'), "<div class='logMsg'>" + str + "</div>" );
+  $('logger').scrollTop = $('logger').lastChild.offsetTop;
+
+};
 

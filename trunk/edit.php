@@ -224,6 +224,7 @@ foreach($storage->getPagesList() as $p)
 }
 
 $xtpl->concat('BODY', '
+<div id="logger" style="position: fixed; top: 60%; left: 0; width: 100%; height: 15%; border: 1px solid black; overflow: scroll;"></div>
 <div id="toolbar">
 	<div id="loading_indicator">Loading...
 	</div>

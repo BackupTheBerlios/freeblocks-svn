@@ -192,15 +192,16 @@ var DragDrop= {
 			log('onDragOut('+draggable_obj+',' + parent + ')');
 
 			// we left the old container
-			parent.options.onDragOut();
+			parent.options.onDragOut(/*element, parent*/);
 
 			draggable_obj.activeContainer= null;
 
 			if( parent.options.allowOutsideContainers == true )
 			{
-				// change parent to body
+				// change parent to body and make element absolutly positionned
 				element.style.position= 'relative';
 				element.parentNode.removeChild( element );
+				element.style["position"]= "absolute";
 				document.getElementsByTagName('body').item(0).appendChild( element );
 			}
 		}
@@ -208,6 +209,7 @@ var DragDrop= {
 		// check if we were nowhere
 		if( (parent == null) && DragDrop.canEnterContainer() )
 		{
+
 			// check each container to see if in its bounds
 			for(var i= 0; i< DragDrop.containers.length; i++)
 			{
@@ -216,12 +218,17 @@ var DragDrop= {
 				if( DragUtils.within(container.element, element) && (container.group == DragDrop.parent_group)) {
 
 					log('onDragOver(' + container.element.id + ')');
+
+					element.style["width"]= "auto";
+					element.style["height"]= "auto";
+
 					// we're inside this one
 					container.options.onDragOver();
 					element._dragObj.activeContainer= container;
 
-					// change parent
+					// change parent and make the item relatively positionned
 					element.parentNode.removeChild( element );
+					element.style["position"]= "relative";
 					container.element.appendChild( element );
 
 					break;
@@ -265,6 +272,8 @@ var DragDrop= {
 
 		var element= draggable_obj.element;
 		var parent= draggable_obj.activeContainer;
+
+		log('onDragEnd(' + parent.element.id + ')');
 
 		DragDrop.deActivateTargetContainers();
 

@@ -40,6 +40,8 @@ Bug reporting: SadGeezer
 
 */
 
+ini_set("error_reporting", E_ALL & ~E_NOTICE);
+
 // When developing uncomment the line below, re-comment before making public
 //error_reporting(E_ALL);
 class XTemplate {

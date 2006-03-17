@@ -1,10 +1,11 @@
 <!-- BEGIN: main -->
 <div id="{ID}" class="component menu_component">
 
-	<!-- BEGIN: item -->
-	<a href='{TARGET}'>{LABEL}</a>
-	<!-- END: item -->
-
+	<div class="content">
+		<!-- BEGIN: item -->
+		<a href='{TARGET}'>{LABEL}</a>
+		<!-- END: item -->
+	</div>
 </div>
 <!-- END: main -->
 

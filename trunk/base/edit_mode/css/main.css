@@ -1,0 +1,96 @@
+
+@import url("edit_datasources.css");
+
+HTML, BODY {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+#main_block {
+	position: absolute;
+	right: 4px;
+	bottom: 3px;
+	left: 3px;
+	top: 3px;
+
+	font-family: Trebuchet MS;
+}
+
+#main_block #outer_content {
+	position: absolute;
+	border: 1px solid black;
+	width: 100%;
+	height: auto;
+	top: 30px;
+	bottom: 0;
+	z-index: 0;
+}
+
+#main_block #inner_content {
+	position: absolute;
+	border: 1px solid lightgray;
+	left: 3px;
+	right: 3px;
+	top: 3px;
+	bottom: 3px;
+	overflow: auto;
+}
+
+#main_block #tabs {
+	position: absolute;
+	width: 100%;
+	height: 30px;
+
+	z-index: 100000;
+}
+
+#main_block #tabs A.tab {
+	float: left;
+	height: 25px;
+	padding: 0px 10px 0px 10px; /* H D B G*/
+	margin: 5px 2px 0px 0px;
+
+	border: 1px solid black;
+	border-bottom: none;
+
+	text-decoration: none;
+	color: #000000;
+}
+
+#main_block #tabs A.tab:hover {
+	background-color: #EFEFEF;
+}
+
+#main_block #tabs A.tab:focus {
+	outline: none;
+}
+
+
+#main_block #tabs A.selected_tab {
+	background-color: #FFFFFF;
+	margin-top: 0px;
+	height: 30px;
+}
+
+#main_block #tabs #datasource_tab {
+	float: right;
+}
+
+#main_block #loading_msg {
+	position: absolute;
+	height: 32px;
+	width: 100px;
+	left: 50%;
+	top: 50%;
+	margin-left: -50px;
+	margin-top: -15px;
+
+	line-height: 200%;
+	padding: 0px;
+	padding-left: 35px;
+	background: url("../../img/indicator.gif") no-repeat 10px 8px;
+
+	border: 1px solid #E0E0E0;
+	background-color: #EFEFEF;
+}

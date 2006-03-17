@@ -1,0 +1,40 @@
+<!-- BEGIN: main -->
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+-->
+<html>
+<head>
+	<!-- BEGIN: css_include -->
+	<link rel="stylesheet" href="{URL}"></link>
+	<!-- END: css_include -->
+
+	<!-- BEGIN: js_include -->
+	<script type="text/javascript" src="{URL}"></script>
+	<!-- END: js_include -->
+</head>
+<body>
+	<div id="main_block">
+		<div id="tabs">
+			<!-- BEGIN: page_tab -->
+			<a href="{URL}" id="{NAME}_tab" class="tab">
+				{NAME}
+			</a>
+			<!-- END: page_tab -->
+
+			<a href="base/edit_mode/edit_datasources.php" id="datasource_tab" class="tab">
+				Datasources
+			</a>
+		</div>
+		<div id="outer_content">
+			<div id="inner_content"></div>
+		</div>
+
+		<div id="loading_msg" style="display: none;">Loading...</div>
+	</div>
+
+
+</body>
+</html>
+<!-- END: main -->
+

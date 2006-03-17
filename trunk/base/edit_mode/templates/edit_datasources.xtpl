@@ -1,0 +1,21 @@
+<!-- BEGIN: main -->
+<div id="ds_left_block">
+
+<div class="toggle">
+	Menu
+</div>
+<div class="toggled_content">
+	<a href="">Menu1</a>
+</div>
+
+<div class="toggle">Text(s)</div>
+<div class="toggled_content">
+	<a href="">Text1</a>
+	<a href="">Text2</a>
+</div>
+
+</div>
+
+<div id="ds_right_block">
+</div>
+<!-- END: main -->

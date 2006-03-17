@@ -1,4 +1,6 @@
 
+
+
 /* global styles*/
 
 INPUT[type=button] {
@@ -9,6 +11,10 @@ INPUT[type=button]:hover {
 	background-color: white;
 }
 
+BODY * {
+	margin: 0;
+	padding: 0;
+}
 
 BODY {
 	margin-bottom: 4em;
@@ -386,7 +392,6 @@ A>IMG {
 	display: block;
 	font-size: 70%;
 }
-
 
 
 
