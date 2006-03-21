@@ -1,6 +1,6 @@
 <?php
 
-class Datasource
+class DatasourceSruct
 {
 	public $type= '';
 	public $id= '';

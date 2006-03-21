@@ -1,5 +1,6 @@
 
-Datasource= {
+var Datasource= Class.create();
+var Datasource= {
 
 	/* variables */
 	datasources: {},
@@ -8,7 +9,9 @@ Datasource= {
 
 	loadFromServer: function(){
 
-		new Ajax.Request('base/datasources.xml.php', {
+		new Ajax.Request('base/edit_mode/datasources.xml.php', {
+
+			method: 'get',
 
 			onSuccess: function(req){
 				var xml= req.responseXML.getElementsByTagName('root').item(0);
@@ -21,7 +24,7 @@ Datasource= {
 					{
 						var type= 	node.getAttribute('type');
 						var item= {
-							id: node.getAttribute('id'),
+							id: node.getAttribute('id')
 						};
 
 						item.content= new Array();
@@ -50,8 +53,6 @@ Datasource= {
 						Datasource.datasources[type].push(item);
 					}
 				}
-
-				//document.getElementsByTagName('body').item(0).debug_obj= Datasource;
 			},
 
 			onFailure: function(){ alert('server error: unable to load datasources'); }

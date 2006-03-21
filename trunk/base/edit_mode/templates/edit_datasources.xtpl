@@ -1,21 +1,31 @@
 <!-- BEGIN: main -->
 <div id="ds_left_block">
 
-<div class="toggle">
-	Menu
-</div>
-<div class="toggled_content">
-	<a href="">Menu1</a>
-</div>
+	<!-- BEGIN: category -->
+	<div class="toggle">
+		{NAME}
+	</div>
+	<div class="toggled_content" id="{NAME}">
+		<!-- BEGIN: item -->
+		<a href="#">{NAME}</a>
+		<!-- END: item -->
+	</div>
+	<!-- END: category -->
 
-<div class="toggle">Text(s)</div>
-<div class="toggled_content">
-	<a href="">Text1</a>
-	<a href="">Text2</a>
-</div>
+	<div class="toggle model" id="toggle_model">
+	</div>
+	<div class="toggled_content model" id="toggled_content_model">
+	</div>
 
 </div>
 
 <div id="ds_right_block">
+	<div id="ds_right_block_content">
+		<!-- BEGIN: editor_div -->
+		<div style="display: none;" id="{ID}">
+		{CONTENT}
+		</div>
+		<!-- END: editor_div -->
+	</div>
 </div>
 <!-- END: main -->

@@ -1,7 +1,7 @@
 <?php
 
-require_once(dirname(__FILE__) . "/../config.inc.php");
-require_once(dirname(__FILE__) . "/common.inc.php");
+require_once(dirname(__FILE__) . "/../../config.inc.php");
+require_once(dirname(__FILE__) . "/../common.inc.php");
 
 // uncomment this line to add
 // \n after each line
@@ -9,7 +9,7 @@ require_once(dirname(__FILE__) . "/common.inc.php");
 
 // load the storage class
 $storage_class= strtoupper($CONF['storage']['current']) . "Storage";
-$storage_class_path= dirname(__FILE__) . "/storage/" . $storage_class . ".php";
+$storage_class_path= dirname(__FILE__) . "/../storage/" . $storage_class . ".php";
 
 if( file_exists($storage_class_path) )
 {

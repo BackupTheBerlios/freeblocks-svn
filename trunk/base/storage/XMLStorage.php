@@ -90,7 +90,7 @@ class XMLStorage extends Storage
 						{
 							if( $child->nodeName == 'data' )
 							{
-								$ds= new Datasource();
+								$ds= new DatasourceSruct();
 								$ds->id= strval( $child->getAttribute('id') );
 								$ds->type= strval( $child->getAttribute('type') );
 

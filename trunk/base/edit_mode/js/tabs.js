@@ -35,7 +35,7 @@ function initTabs()
 				Element.hide(this._contentDiv);
 
 				showLoadingIndicator();
-				new Ajax.Updater(this._contentDiv, this.href, {
+				new Ajax.Updater(this._contentDiv, this.href + '?r=' + Math.random(), {
 					method: 'get',
 					onComplete: function(req){
 						// call the init function if exists
