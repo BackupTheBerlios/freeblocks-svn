@@ -16,7 +16,7 @@ function hideLoadingIndicator(){
 	Element.hide('loading_msg');
 }
 
-/*
+
 tinyMCE.init({
 	mode 		: "textareas",
 	theme 		: "advanced",
@@ -30,7 +30,7 @@ tinyMCE.init({
 	content_css : "base.css"
 });
 
-
+/*
 var drag_prop= new Draggable('properties_panel',
 	{handle: 'title',
 	 starteffect: null,
@@ -127,6 +127,11 @@ function initSortable()
 	}
 }
 
-//window.setTimeout("initSortable()", 100);
+function initPage()
+{
+	Datasource.loadFromServer();
+}
+
+window.setTimeout("initPage()", 200);
 
 

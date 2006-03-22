@@ -2,18 +2,21 @@
 <config>
 
 <datasources>
-	<data type="user" id="data_user_1">
+	<data type="User" id="data_user_1">
 		<item login="schmurfy" pw=""/>
 		<item login="toto" pw=""/>
 	</data>
-	<data type="menu" id="data_menu_1">
+	<data type="Menu" id="data_menu_1">
 		<item label="hfgh" page="true" target="page2"/>
 		<item label="fghghhhh" page="false" target="hhh"/>
 	</data>
-	<data type="menu" id="data_menu_2">
+	<data type="Menu" id="data_menu_2">
 		<item label="Index" page="true" target="index"/>
 		<item label="Page2" page="true" target="page2"/>
 		<item label="Page3" page="true" target="page3"/>
+	</data>
+	<data type="Text" id="data_text_1">
+		<item text="bla bla"/>
 	</data>
 </datasources>
 <pages>

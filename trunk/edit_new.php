@@ -50,7 +50,7 @@ foreach( $storage->getPageData() as $name => $val )
 
 
 //////////////
-// build a list of all available components
+// build a list of all available components type
 $available_components= array();
 $dir= opendir("components");
 if( $dir )
@@ -65,6 +65,24 @@ if( $dir )
 		}
 	}
 }
+/*
+//////////////
+// build a list of all available datasource type
+$available_datasources= array();
+$dir= opendir("base/datasources");
+if( $dir )
+{
+	while(($fname= readdir($dir)) !== false)
+	{
+		if( ($fname[0] != '.') && is_dir('base/datasources/components/' . $fname) )
+		{
+			// load class definition
+			require_once("base/datasources/{$fname}/{$fname}.php");
+			$available_datasources[]= $fname;
+		}
+	}
+}
+*/
 
 // render page
 $xtpl= new XTemplate(dirname(__FILE__) . "/base/edit_mode/templates/main.xtpl");
@@ -79,16 +97,17 @@ $js_files= array(
 	'lib/dragdrop/coordinates.js',
 	'lib/dragdrop/dragdrop.js',
 	'lib/dragdrop/drag.js',
-	'base/Component.js',
-	'base/Datasource.js',
 	'tinymce/jscripts/tiny_mce/tiny_mce.js',
 	'lib/moofx/moo.fx.js',
 	'lib/moofx/moo.fx.pack.js',
 
 
+	'base/edit_mode/js/Datasource.js',
 	'edit_mode.js',
+	'base/Component.js',
 	'base/edit_mode/js/tabs.js',
 	'base/edit_mode/js/edit_datasources.js'
+
 );
 
 // link component specific css and javascript

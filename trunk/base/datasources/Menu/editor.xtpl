@@ -1,4 +1,26 @@
 <!-- BEGIN: main -->
 
+	<!-- BEGIN: menu_item_list -->
+	<div id="multiprop_Menu_item">
+		<div class="menu_title">Item(s)</div>
+
+		<div class="header">
+			<label>label</label>
+			<label>target=page</label>
+			<label>target</label>
+		</div>
+
+		<div class="line line_model">
+			<div class="remove_button" onclick="Menu.multi_item_removeline( Event.element(event) );"></div>
+			<input type="text" id="Menu_item_label-0"/>
+			<input type="checkbox" id="Menu_item_page-0" onchange="Menu.pageCheckChanged( Event.element(event) )"/>
+			<input type="text" id="Menu_item_target-0" onchange="alert('new_value')"/>
+		</div>
+
+		<a href="" id="add_button">Add Item<!-- <img onclick="Menu.multi_item_addline();" src="base/img/add.png" /> --></a>
+
+	</div>
+	<!-- END: menu_item_list -->
+
 <!-- END: main -->
 
