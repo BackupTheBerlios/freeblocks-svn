@@ -48,6 +48,92 @@ drag_prop.element.style.top= getCookie('prop_y');
 */
 
 
+FormElement= {
+	getValue: function(element){
+		element= $(element);
+		var method = element.tagName.toLowerCase();
+
+		return FormElement.Getters[method](element);
+	},
+
+	setValue: function(element, newval){
+		element= $(element);
+		var method = element.tagName.toLowerCase();
+		FormElement.Setters[method](element, newval);
+	}
+};
+
+FormElement.Getters= {
+	input: function(element) {
+		switch (element.type.toLowerCase()) {
+		case 'submit':
+		case 'hidden':
+		case 'password':
+		case 'text':
+			return FormElement.Getters.textarea(element);
+		case 'checkbox':
+		case 'radio':
+			return FormElement.Getters.inputSelector(element);
+		}
+
+		return false;
+	},
+
+	inputSelector: function(element){
+		return element.checked?'true':'false';
+	},
+
+	select: function(element) {
+		return element.value;
+	},
+
+	textarea: function(element){
+		return element.value;
+	}
+};
+
+FormElement.Setters= {
+	input: function(element, newval) {
+		switch (element.type.toLowerCase()) {
+		case 'submit':
+		case 'hidden':
+		case 'password':
+		case 'text':
+			element.value= newval;
+			break;
+
+		case 'checkbox':
+		case 'radio':
+			element.checked= (newval == 'true');
+			break;
+		}
+
+		return false;
+	},
+
+	select: function(element, newval) {
+		//element.value= newval;
+
+		for(var i= 0; i< element.options.length; i++)
+		{
+			//alert( element.options[i].value + ' ' + newval );
+			if( element.options[i].value == newval )
+			{
+				element.selectedIndex= i;
+				break;
+			}
+		}
+	}
+};
+
+FormElement.setValue= function(element, newval){
+	return FormElement.Setters[element.tagName.toLowerCase()](element, newval);
+};
+
+FormElement.getValue= function(element){
+	return FormElement.Getters[element.tagName.toLowerCase()](element);
+};
+
 
 
 // enumerate all the possible containers on the template

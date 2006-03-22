@@ -65,24 +65,23 @@ if( $dir )
 		}
 	}
 }
-/*
+
 //////////////
 // build a list of all available datasource type
+// to include each css
 $available_datasources= array();
 $dir= opendir("base/datasources");
 if( $dir )
 {
 	while(($fname= readdir($dir)) !== false)
 	{
-		if( ($fname[0] != '.') && is_dir('base/datasources/components/' . $fname) )
+		if( ($fname[0] != '.') && is_dir('base/datasources/' . $fname) )
 		{
-			// load class definition
-			require_once("base/datasources/{$fname}/{$fname}.php");
 			$available_datasources[]= $fname;
 		}
 	}
 }
-*/
+
 
 // render page
 $xtpl= new XTemplate(dirname(__FILE__) . "/base/edit_mode/templates/main.xtpl");
@@ -122,6 +121,16 @@ foreach($available_components as $comp)
 
 	if( file_exists($fname_js) ){
 		$js_files[]= $fname_js;
+	}
+}
+
+// add css for each datasource editor
+foreach($available_datasources as $ds)
+{
+	$fname_css= "base/datasources/{$ds}/style.css";
+
+	if( file_exists($fname_css) ){
+		$css_files[]= $fname_css;
 	}
 }
 

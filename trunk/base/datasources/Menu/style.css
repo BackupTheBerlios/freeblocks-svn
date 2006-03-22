@@ -1,25 +1,9 @@
 
-/* Component */
-.menu_component A{
-	display: block;
-}
-
-
-/* Property panel*/
-/*
-#multiprop_Menu_item {
-
-}
-
 #multiprop_Menu_item .menu_title {
 	margin-top: 10px;
 	border-bottom: 1px dotted black;
 }
 
-
-#multiprop_Menu_item .header {
-
-}
 
 #multiprop_Menu_item .header LABEL {
 	float: left;
@@ -37,12 +21,11 @@
 
 #multiprop_Menu_item .line * {
 	width: 30%;
-	border: 1px dotted black;
 }
 
-#multiprop_Menu_item .line .remove_button {
+#multiprop_Menu_item .line .menu_remove_button {
 	float: right;
-	background: url("../../base/img/delete.png") no-repeat;
+	background: url("../../img/delete.png") no-repeat;
 	width: 20px;
 	height: 20px;
 	cursor: pointer;
@@ -52,4 +35,7 @@
 #multiprop_Menu_item .line_model {
 	display: none;
 }
-*/
+
+A#menu_add_button {
+	border: none;
+}

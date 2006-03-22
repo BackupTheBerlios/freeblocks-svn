@@ -4,6 +4,7 @@ var Datasource= {
 
 	/* variables */
 	datasources: {},
+	pages: [],
 
 	/* funcions */
 
@@ -18,39 +19,48 @@ var Datasource= {
 
 				for(var i= 0; i< xml.childNodes.length; i++)
 				{
-					var node= xml.childNodes.item(i);
+					var top_node= xml.childNodes.item(i);
 
-					if( node.nodeName == 'data' )
-					{
-						var type= 	node.getAttribute('type');
-						var item= {
-							id: node.getAttribute('id')
-						};
-
-						item.content= new Array();
-
-
-						for(var j= 0; j< node.childNodes.length; j++)
-						{
-							var data_node= node.childNodes[j];
-							var line= {};
-
-							for(k= 0; k< data_node.attributes.length; k++)
+					if( top_node.nodeName == 'datalist' ){
+						$A(top_node.childNodes).each(function(node){
+							if( node.nodeName == 'data' )
 							{
-								var name= data_node.attributes[k].name;
-								var value= data_node.attributes[k].value;
+								var type= 	node.getAttribute('type');
+								var item= {
+									id: node.getAttribute('id')
+								};
 
-								line[name]= value;
+								item.content= new Array();
+
+
+								for(var j= 0; j< node.childNodes.length; j++)
+								{
+									var data_node= node.childNodes[j];
+									var line= {};
+
+									for(k= 0; k< data_node.attributes.length; k++)
+									{
+										var name= data_node.attributes[k].name;
+										var value= data_node.attributes[k].value;
+
+										line[name]= value;
+									}
+									item.content.push(line);
+								}
+
+								if( !Datasource.datasources[type] )
+								{
+									Datasource.datasources[type]= new Array();
+								}
+
+								Datasource.datasources[type].push(item);
 							}
-							item.content.push(line);
-						}
-
-						if( !Datasource.datasources[type] )
-						{
-							Datasource.datasources[type]= new Array();
-						}
-
-						Datasource.datasources[type].push(item);
+						});
+					}
+					else if( top_node.nodeName == 'pages' ){
+						$A(top_node.childNodes).each(function(node){
+							Datasource.pages.push(node.getAttribute('name'));
+						});
 					}
 				}
 			},

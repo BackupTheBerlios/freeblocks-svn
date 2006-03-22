@@ -63,7 +63,7 @@ Menu.prototype= Object.extend(new Component(), {
 });
 
 // static methods
-
+/*
 Menu.multi_item_addline= function(){
 
 	var model= $('Menu_item_label-0').parentNode;
@@ -122,7 +122,7 @@ Menu.pageCheckChanged= function(el){
 
 	url_el.parentNode.replaceChild(newnode, url_el);
 };
-
+*/
 
 
 

@@ -18,15 +18,13 @@ class XMLStorage extends Storage
 	private $_filename;
 
 
-	public function __construct($param)
+	public function __construct($param= array())
 	{
 		parent::__construct($param);
 
 		$this->_xml= new DOMDocument();
 		$this->_filename= dirname(__FILE__) . '/../../configs/xml/' . $this->_connec_data[0];
 		$this->_current_page= $this->_connec_data[1];
-
-
 	}
 
 	public function getPagesList()

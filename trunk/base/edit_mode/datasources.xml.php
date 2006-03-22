@@ -26,13 +26,23 @@ else
 }
 
 
-$storage= new $storage_class( array($CONF['configs']['current'], $_GET['page']) );
+$storage= new $storage_class( array($CONF['configs']['current'], "") );
 $storage->loadData();
 
 header('Content-Type: text/xml');
 xml_out('<?xml version="1.0" ?>');
 xml_out('<root>');
 
+xml_out('<pages>');
+
+foreach($storage->getPagesList() as $page)
+{
+	xml_out("<page name=\"{$page}\" />");
+}
+
+xml_out('</pages>');
+
+xml_out('<datalist>');
 foreach( $storage->getDatasources() as $type_name => $datasources )
 {
 	foreach($datasources as $ds)
@@ -54,6 +64,7 @@ foreach( $storage->getDatasources() as $type_name => $datasources )
 		xml_out("</data>");
 	}
 }
+xml_out('</datalist>');
 
 xml_out('</root>');
 

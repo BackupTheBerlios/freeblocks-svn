@@ -11,13 +11,13 @@
 		</div>
 
 		<div class="line line_model">
-			<div class="remove_button" onclick="Menu.multi_item_removeline( Event.element(event) );"></div>
+			<div class="menu_remove_button" onclick="Menu.multi_item_removeline( Event.element(event) );"></div>
 			<input type="text" id="Menu_item_label-0"/>
-			<input type="checkbox" id="Menu_item_page-0" onchange="Menu.pageCheckChanged( Event.element(event) )"/>
+			<input type="checkbox" id="Menu_item_page-0"/>
 			<input type="text" id="Menu_item_target-0" onchange="alert('new_value')"/>
 		</div>
 
-		<a href="" id="add_button">Add Item<!-- <img onclick="Menu.multi_item_addline();" src="base/img/add.png" /> --></a>
+		<a href="" id="menu_add_button"><img src="base/img/add.png" /></a>
 
 	</div>
 	<!-- END: menu_item_list -->

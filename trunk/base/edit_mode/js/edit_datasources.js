@@ -59,16 +59,21 @@ function buildTree()
 
 function initTree()
 {
+	var already_added= [];
+
 	var containers= document.getElementsByClassName('toggled_content').each( function(cont){
 		var nodes= $A(cont.getElementsByTagName('A')).each(function(el){
 
-			new Ajax.Request('base/datasources/' + el.parentNode.id + '/script.js?r=' + Math.random(), {
-				method: 'get',
-				onComplete: function(req){
-					eval(req.responseText);
-				}
+			if( already_added.indexOf(el.parentNode.id) == -1 ){
+				already_added.push(el.parentNode.id);
+				new Ajax.Request('base/datasources/' + el.parentNode.id + '/script.js?r=' + Math.random(), {
+					method: 'get',
+					onComplete: function(req){
+						eval(req.responseText);
+					}
 
-			});
+				});
+			}
 
 			el.onclick= ds_selectItem;
 
@@ -107,6 +112,8 @@ function ds_selectItem(event)
 		// then load the data from the clcked item
 		if( IODatasource[parent.id] ){
 			IODatasource[parent.id].load(el._data_items);
+		} else {
+			//alert("1: " + parent.id);
 		}
 	}
 
