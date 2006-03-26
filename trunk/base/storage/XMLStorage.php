@@ -148,6 +148,73 @@ class XMLStorage extends Storage
 	 *
 	 * @param mixed $components components array
 	 */
+	public function saveDatasources($datasources)
+	{
+		global $CONF;
+		$ret= true;
+
+
+		if( is_writable($this->_filename) )
+		{
+			$xml= $this->_xml;
+			if( $xml->load($this->_filename) )
+			{
+				// keep a reference on the top node
+				$config_node= $xml->documentElement;
+				$old_page_node= null;
+
+				// find the datasources node
+				$ds_node= $config_node->getElementsByTagName('datasources')->item(0);
+
+				// remove old content
+				while($ds_node->hasChildNodes() )
+				{
+					$ds_node->removeChild( $ds_node->firstChild );
+				}
+
+				// and create the new one
+				foreach( get_object_vars($datasources) as $ds_type => $ds_list)
+				{
+					foreach( $ds_list as $ds_object )
+					{
+						$new_type= $xml->createElement('data');
+						$new_type->setAttribute('type', $ds_type);
+						$new_type->setAttribute('id', $ds_object->id);
+
+						foreach($ds_object->content as $item)
+						{
+							$new_item= $xml->createElement('item');
+
+							foreach( get_object_vars($item) as $name => $value )
+							{
+								$new_item->setAttribute($name, $value);
+							}
+
+							$new_type->appendChild($new_item);
+						}
+
+						$ds_node->appendChild($new_type);
+					}
+				}
+
+				// save new xml to file
+				$xml->save($this->_filename);
+			}
+		}
+		else
+		{
+			$ret= false;
+		}
+
+		return $ret;
+	}
+
+
+	/**
+	 * replace data for current page
+	 *
+	 * @param mixed $components components array
+	 */
 	public function savePage($page_node)
 	{
 		global $CONF;
@@ -175,7 +242,7 @@ class XMLStorage extends Storage
 
 		if( $ret && is_writable($this->_filename) )
 		{
-			$xml= new DOMDocument();
+			$xml= $this->_xml;
 			if( $xml->load($this->_filename) )
 			{
 				// keep a reference on the top node

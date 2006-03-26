@@ -105,8 +105,8 @@ $js_files= array(
 	'edit_mode.js',
 	'base/Component.js',
 	'base/edit_mode/js/tabs.js',
-	'base/edit_mode/js/edit_datasources.js'
-
+	'base/edit_mode/js/edit_datasources.js',
+	'base/edit_mode/js/json.js'
 );
 
 // link component specific css and javascript

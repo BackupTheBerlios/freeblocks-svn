@@ -59,6 +59,7 @@ abstract class Storage
 	abstract public function loadData();
 	abstract public function getPagesList();
 	abstract public function savePage($components);
+	abstract public function saveDatasources($datasources);
 
 	abstract function getDatasource($block_type, $block_name);
 }

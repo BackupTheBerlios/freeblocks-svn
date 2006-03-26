@@ -67,6 +67,16 @@ var Datasource= {
 
 			onFailure: function(){ alert('server error: unable to load datasources'); }
 		});
+	},
+
+	// send data to server
+	save: function(){
+		var json_data= JSON.stringify(this.datasources);
+
+		new Ajax.Request('base/edit_mode/save_datasources.php', {
+			method: 'post',
+			parameters: 'data=' + json_data
+		});
 	}
 
 };

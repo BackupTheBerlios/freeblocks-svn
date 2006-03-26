@@ -94,7 +94,9 @@ function ds_selectItem(event)
 	{
 		// save content
 		if( IODatasource[selected_ds.parentNode.id] ){
+			selected_ds._data_items= [];
 			IODatasource[selected_ds.parentNode.id].save(selected_ds._data_items);
+			Datasource.save();
 		}
 
 		Element.removeClassName(selected_ds, 'selected');
