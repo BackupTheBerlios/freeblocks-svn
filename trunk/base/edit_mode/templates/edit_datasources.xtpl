@@ -1,16 +1,9 @@
 <!-- BEGIN: main -->
 <div id="ds_left_block">
 
-	<!-- BEGIN: category -->
-	<div class="toggle">
-		{NAME}
+	<div id="ds_item_buttons" style="display: none;">
+		<a href="#" id="ds_delete_button"></a>
 	</div>
-	<div class="toggled_content" id="{NAME}">
-		<!-- BEGIN: item -->
-		<a href="#">{NAME}</a>
-		<!-- END: item -->
-	</div>
-	<!-- END: category -->
 
 	<div class="toggle model" id="toggle_model">
 	</div>

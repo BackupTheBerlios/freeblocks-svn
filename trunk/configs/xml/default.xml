@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config>
 
-<datasources><data type="User" id="data_user_1"><item login="schmurfy" pw=""/><item login="toto" pw=""/></data><data type="Menu" id="data_menu_1"><item label="hfgh" page="true" target="page2"/><item label="fghghhhh" page="false" target="hhh"/></data><data type="Menu" id="data_menu_2"><item label="Index" page="true" target="index"/><item label="Page2" page="true" target="page2"/><item label="Page3" page="true" target="page3"/></data><data type="Text" id="data_text_1"><item text="bla bla"/></data></datasources>
+<datasources><data type="User" id="data_user_1"><item login="schmurfy" pw=""/><item login="toto" pw=""/></data><data type="Menu" id="data_menu_1"><item label="hfgh" page="true" target="page2"/><item label="fghghhhh" page="false" target="hhh"/></data><data type="Menu" id="data_menu_2"><item label="Index" page="true" target="index"/><item label="Page2" page="true" target="page2"/><item label="Page3" page="true" target="page3"/></data><data type="Text" id="data_text_1"><item text="bla bla"/></data><data type="Text" id="data_text_2"><item text="sdfdsf&lt;br /&gt;jhhl&lt;br /&gt;mklm m k lmK lmk&lt;br /&gt;mlk m klm &lt;br /&gt; "/></data></datasources>
 <pages>
 	<page name="index" template="index.xtpl">
 	<component x="0" y="0" preview="true" datasource="data_menu_1" width="auto" position="container" type="Menu" id="comp_10" parent="left_container"/>

@@ -14,7 +14,6 @@ require_once(dirname(__FILE__) . "/base/Component.php");
 require_once(dirname(__FILE__) . "/base/Page.php");
 require_once(dirname(__FILE__) . "/base/common.inc.php");
 
-
 ///////////
 // load the storage class
 $storage_class= strtoupper($CONF['storage']['current']) . "Storage";
@@ -92,7 +91,7 @@ $css_files= array(
 );
 
 $js_files= array(
-	'lib/prototype/prototype.js',
+	'lib/prototype/prototype15.js',
 	'lib/dragdrop/coordinates.js',
 	'lib/dragdrop/dragdrop.js',
 	'lib/dragdrop/drag.js',

@@ -24,4 +24,11 @@ function xml_out($txt)
 	echo $txt . $ending;
 }
 
+
+// some checks
+if( get_magic_quotes_gpc() == 1 )
+{
+	die("You need to disable magic_quotes_gpc to continue");
+}
+
 ?>

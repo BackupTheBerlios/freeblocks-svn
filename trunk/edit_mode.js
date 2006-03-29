@@ -1,7 +1,7 @@
 
 Element.childrenWithClassName = function(element, className) {
-  return $A($(element).getElementsByTagName('*')).select(
-    function(c) { return Element.hasClassName(c, className) });
+	return $A($(element).getElementsByTagName('*')).select(
+		function(c) { return Element.hasClassName(c, className) });
 }
 
 

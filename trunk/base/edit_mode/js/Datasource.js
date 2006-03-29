@@ -4,9 +4,47 @@ var Datasource= {
 
 	/* variables */
 	datasources: {},
+	datasources_ids: [],
 	pages: [],
 
-	/* funcions */
+	/* functions */
+
+	addItem: function(type){
+		var new_item= {};
+
+		function isDefined(id){
+			return (Datasource.datasources_ids.indexOf(id) != -1);
+		};
+
+		function findUnusedID(type){
+			var base= 'data_' + type.toLowerCase() + '_';
+			var i= 1;
+			for(;; i++ ){
+				if( !isDefined(base + i) ){
+					break;
+				}
+			}
+
+			return base+i;
+		};
+
+		if( this.datasources[type] != null ){
+			var new_id= findUnusedID(type);
+			new_item= {"id": new_id, "content": []};
+			this.datasources[type].push( new_item );
+			this.datasources_ids.push(new_id);
+		}
+
+		return new_item;
+	},
+
+	removeItem: function(type, id){
+		var new_list= this.datasources_ids.findAll(function(name){ return (name != id); });
+		var new_ds= this.datasources[type].findAll(function(ds){ return (ds.id != id); });
+
+		this.datasources_ids= new_list;
+		this.datasources[type]= new_ds;
+	},
 
 	loadFromServer: function(){
 
@@ -54,6 +92,7 @@ var Datasource= {
 								}
 
 								Datasource.datasources[type].push(item);
+								Datasource.datasources_ids.push(item['id']);
 							}
 						});
 					}

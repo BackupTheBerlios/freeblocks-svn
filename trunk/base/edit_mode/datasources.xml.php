@@ -54,6 +54,7 @@ foreach( $storage->getDatasources() as $type_name => $datasources )
 			$txt= "<item ";
 			foreach( $line as $name => $val )
 			{
+				$val= htmlentities($val);
 				$txt.= "{$name}=\"{$val}\" ";
 			}
 

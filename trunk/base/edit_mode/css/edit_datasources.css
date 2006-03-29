@@ -9,6 +9,8 @@
 
 	border: 1px solid black;
 	z-index: 20;
+
+	/*overflow: hidden;*/
 }
 
 #ds_left_block DIV.toggle {
@@ -17,6 +19,17 @@
 	margin-top: 10px;
 	background-color: #C3DFDC;
 	text-align: center;
+}
+
+#ds_left_block DIV.toggle A.ds_add_item {
+	float: right;
+	font-size: 80%;
+	text-decoration: none;
+	color: blue;
+}
+
+#ds_left_block DIV.toggle A.ds_add_item:focus {
+	outline: none;
 }
 
 #ds_left_block DIV.toggled_content A {
@@ -50,6 +63,32 @@
 	margin-left: 10px;
 }
 
+/* item buttons */
+#ds_left_block DIV.toggled_content A #ds_item_buttons {
+	float: right;
+	margin: 0;
+	padding: 0;
+}
+
+#ds_left_block DIV.toggled_content A #ds_item_buttons A {
+	display: block;
+	width: 9px;
+	height: 18px;
+}
+
+#ds_left_block DIV.toggled_content A.selected #ds_item_buttons A {
+	margin-right: 5px;
+}
+
+#ds_left_block DIV.toggled_content A #ds_item_buttons A#ds_delete_button {
+	background: url("../../img/delete.png") no-repeat;
+}
+/****************/
+
+
+
+/**********************/
+/* right */
 #ds_right_block {
 	position: absolute;
 	top: 3px;
